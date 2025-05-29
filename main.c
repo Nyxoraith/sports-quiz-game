@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "jogodomilhao.h"
+#include "raylib.h"
 
 int main(){
     const char *arquivo = "questoes.csv";
@@ -11,9 +12,13 @@ int main(){
         return 1;
     }
 
-    menu(&perguntas, &tam);
-    salvar(perguntas, tam);
+    InitWindow(720, 520, "Jogo do Milhão");
 
+    menu(&perguntas, &tam);
+    
+    CloseWindow();
+
+    salvar(perguntas, tam);
     liberarMemoria(perguntas, tam);
     perguntas = NULL;
     return 0;

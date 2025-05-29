@@ -1,6 +1,8 @@
 #ifndef JOGODOMILHAO_H
 #define JOGODOMILHAO_H
 
+#include "raylib.h"
+
 /**
  * @struct Pergunta
  * @brief Estrutura que representa uma pergunta do Quiz.
@@ -30,7 +32,6 @@ void inserir(Pergunta **pergunta, int *tam);
 //Lista as perguntas existentes no vetor
 void listar(Pergunta *pergunta, int tam);
 
-
 //Pesquisa uma pergunta pelo enunciado
 int pesquisar(Pergunta *pergunta, int tam);
 
@@ -39,7 +40,6 @@ void alterar(Pergunta *pergunta, int tam);
 
 //Exlcui uma pergunta já existente
 void excluir(Pergunta **pergunta, int *tam);
-
 
 //Salva as perguntas/alterações realizadas no arquivo
 void salvar(Pergunta *pergunta, int tam);
@@ -56,4 +56,5 @@ char lerResposta();
 //Converte um caractere para maiusculo
 char paraMaiuscula(char c);
 
+void button_animation(Rectangle button);
 #endif

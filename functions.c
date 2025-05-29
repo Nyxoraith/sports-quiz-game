@@ -1,12 +1,9 @@
-#ifdef _WIN32
-#include <windows.h>
-#else
-#include <unistd.h>
-#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "raylib.h"
 #include "jogodomilhao.h"
+
 
 int contar_linhas(const char *nome_arquivo){
     FILE *fp = fopen(nome_arquivo, "r");
@@ -277,21 +274,51 @@ void salvar(Pergunta *pergunta, int tam){
 }
 
 void menu(Pergunta **perguntas, int *tam) {
-    int opcao;
+    Rectangle play = {200, 100, MeasureText("Jogar", 20), 20};
+    Rectangle add = {200, 130, MeasureText("Adicionar pergunta", 20), 20};
+    Rectangle list = {200, 160, MeasureText("Listar perguntas", 20), 20};
+    Rectangle search = {200, 190, MeasureText("Pesquisar perguntas", 20), 20};
+    Rectangle modify = {200, 220, MeasureText("Alterar perguntas", 20), 20};
+    Rectangle remove = {200, 250, MeasureText("Excluir perguntas", 20), 20};
+    Rectangle exit = {200, 280, MeasureText("Salvar e sair", 20), 20};
+    bool clicou = false;
 
-    do {
-        printf("\n===== MENU =====\n");
-        printf("1) Jogar\n");
-        printf("2) Adicionar pergunta\n");
-        printf("3) Listar perguntas\n");
-        printf("4) Pesquisar perguntas\n");
-        printf("5) Alterar perguntas\n");
-        printf("6) Excluir perguntas\n");
-        printf("7) Salvar e sair\n");
-        printf("Escolha uma opção: ");
-        scanf("%d", &opcao);
-        getchar();
+    while(!WindowShouldClose()){
+        BeginDrawing();
+        ClearBackground(WHITE);
+        DrawText("===== MENU =====", 200, 50, 20, BLACK);
 
+        button_animation(play);
+        DrawText("Jogar", 200, 100, 20, BLACK);  
+
+        button_animation(add);
+        DrawText("Adicionar pergunta", 200, 130, 20, BLACK);
+
+        button_animation(list);
+        DrawText("Listar perguntas", 200, 160, 20, BLACK);
+
+        button_animation(search);
+        DrawText("Pesquisar perguntas", 200, 190, 20, BLACK);
+
+        button_animation(modify);
+        DrawText("Alterar perguntas", 200, 220, 20, BLACK);
+
+        button_animation(remove);
+        DrawText("Excluir perguntas", 200, 250, 20, BLACK);
+
+        button_animation(exit);
+        if(CheckCollisionPointRec(GetMousePosition(), exit)){
+            if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)){
+                return;
+            }
+        }
+        DrawText("Salvar e sair", 200, 280, 20, BLACK);
+
+        EndDrawing();
+    }
+
+        
+/*
         switch(opcao) {
             case 1:
                 jogar(*perguntas, *tam);
@@ -316,16 +343,7 @@ void menu(Pergunta **perguntas, int *tam) {
             case 6:
                 excluir(perguntas, tam);
                 break;
-
-            case 7:
-                printf("\nPerguntas salvas. Saindo...\n");
-                return;
-                break;
-
-            default:
-                printf("Opção inválida!\n");
-        }
-    }while(opcao != 7);
+        */
 }
 
 void liberarMemoria(Pergunta *perguntas, int tam){
@@ -462,3 +480,15 @@ char paraMaiuscula(char c){
 //'A' 'B' 'C' 'D' para respostas válidas
 //'X' para pedir dica (DC)
 //'\0' para inválidos
+
+void button_animation(Rectangle button){
+    DrawRectangleRec(button, WHITE);
+    if(CheckCollisionPointRec(GetMousePosition(), button)){
+        DrawRectangleRec(button, LIGHTGRAY);
+        if(IsMouseButtonDown(MOUSE_LEFT_BUTTON)){
+            DrawRectangleRec(button, GOLD);
+        }
+    }
+}
+
+
