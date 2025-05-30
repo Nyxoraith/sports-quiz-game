@@ -274,50 +274,49 @@ void salvar(Pergunta *pergunta, int tam){
 }
 
 void menu(Pergunta **perguntas, int *tam) {
-    Rectangle play = {200, 100, MeasureText("Jogar", 20), 20};
-    Rectangle add = {200, 130, MeasureText("Adicionar pergunta", 20), 20};
-    Rectangle list = {200, 160, MeasureText("Listar perguntas", 20), 20};
-    Rectangle search = {200, 190, MeasureText("Pesquisar perguntas", 20), 20};
-    Rectangle modify = {200, 220, MeasureText("Alterar perguntas", 20), 20};
-    Rectangle remove = {200, 250, MeasureText("Excluir perguntas", 20), 20};
-    Rectangle exit = {200, 280, MeasureText("Salvar e sair", 20), 20};
+    const char *nameButtons[] = {"Jogar", "Adicionar pergunta", "Listar perguntas", "Pesquisar perguntas", "Alterar perguntas", "Excluir perguntas", "Salvar e sair"};
+    Texture2D logo_show = LoadTexture("./show.png");
+    Rectangle play[7]; 
+    for(int i = 0; i < 7; i++){
+        play[i].x = centralizar_X(nameButtons[i], 20);
+        play[i].y = 280 + i * 30;
+        play[i].width = MeasureText(nameButtons[i], 20);
+        play[i].height = 20;
+    }
+
     bool clicou = false;
 
     while(!WindowShouldClose()){
         BeginDrawing();
         ClearBackground(WHITE);
-        DrawText("===== MENU =====", 200, 50, 20, BLACK);
 
-        button_animation(play);
-        DrawText("Jogar", 200, 100, 20, BLACK);  
+        DrawTexture(logo_show, (GetScreenWidth() - logo_show.width)/2, 10, WHITE);
+        DrawText("===== MENU =====", centralizar_X("===== MENU =====", 20), 230, 20, BLACK);
+        for(int i = 0; i < 7; i++){
+            button_animation(play[i], YELLOW);
+            DrawText(nameButtons[i], play[i].x, play[i].y, 20, BLACK);  
+        }
 
-        button_animation(add);
-        DrawText("Adicionar pergunta", 200, 130, 20, BLACK);
+        //Jogar
+        if(CheckCollisionPointRec(GetMousePosition(), play[0])){
+            if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)){
+                jogar(*perguntas, *tam);
+            }
+        }
 
-        button_animation(list);
-        DrawText("Listar perguntas", 200, 160, 20, BLACK);
 
-        button_animation(search);
-        DrawText("Pesquisar perguntas", 200, 190, 20, BLACK);
-
-        button_animation(modify);
-        DrawText("Alterar perguntas", 200, 220, 20, BLACK);
-
-        button_animation(remove);
-        DrawText("Excluir perguntas", 200, 250, 20, BLACK);
-
-        button_animation(exit);
-        if(CheckCollisionPointRec(GetMousePosition(), exit)){
+        //Exit
+        if(CheckCollisionPointRec(GetMousePosition(), play[6])){
             if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)){
                 return;
             }
         }
-        DrawText("Salvar e sair", 200, 280, 20, BLACK);
-
         EndDrawing();
     }
+    UnloadTexture(logo_show);
+}      
 
-        
+    
 /*
         switch(opcao) {
             case 1:
@@ -344,7 +343,6 @@ void menu(Pergunta **perguntas, int *tam) {
                 excluir(perguntas, tam);
                 break;
         */
-}
 
 void liberarMemoria(Pergunta *perguntas, int tam){
     for(int i=0; i < tam; i++){
@@ -359,11 +357,190 @@ void liberarMemoria(Pergunta *perguntas, int tam){
 }
 
 void jogar(Pergunta *pergunta, int total){
-    int i;
+    int perguntaAtual = 0;
     char resposta;
+    char buffer[255];
     int dicasDisponiveis = 2;
     int dinheiroGanho = 0;
+    int recebeuDicaNaVez = 0;
+    int pressed = 0;
+    int marco1 = 5; // pergunta 5
+    int marco2 = 10; // pergunta 10
+    int valorSeguro = 0;
+    Rectangle voltar = {centralizar_X("Voltar ao menu!", 20), 480, MeasureText("Voltar ao menu!", 20), 20};
+    Rectangle alt_buttons[4];
+    Rectangle dicas = {100, 350, MeasureText("Receber dica",20), 20};
+    bool jaUsouDicaMsg = false;
+    bool esperando = false;
+    double tempoEsperando = 0;
+    double delay = 1;
+    int gameFinal = 0;
+    /*
+    const char *tutorial[] = {
+        "Vai começar o jogo do Milhão!",
+        "Responda as pergunta escolhendo alguma das alternativas",
+        "Você pode escolher entre as alternativas A, B, C ou D.",
+        "Você tem direito a 2 dicas curtas durante o jogo.",
+        "Para usar uma dica, digite 'DC'."
+    };*/
 
+    while(!WindowShouldClose()){
+        BeginDrawing();
+        ClearBackground(WHITE);
+        char *alternativas[] = {pergunta[perguntaAtual].alt1, pergunta[perguntaAtual].alt2, pergunta[perguntaAtual].alt3, pergunta[perguntaAtual].alt4};
+        for(int i = 0; i < 4; i++){
+            sprintf(buffer, "%c) %s", 'A' + i, alternativas[i]);
+            alt_buttons[i].x = centralizar_X(alternativas[i], 20);
+            alt_buttons[i].y = 140 + i * 30;
+            alt_buttons[i].width = MeasureText(buffer, 20);
+            alt_buttons[i].height = 20;
+        }
+
+        /*
+        for(int i = 0; i < 4; i++){
+            DrawText(tutorial[i], centralizar_X(tutorial[i], 20), 100 + i * 30, 20, BLACK);
+        }*/
+    
+
+        //Enunciado
+        DrawText(pergunta[perguntaAtual].enunciado, centralizar_X(pergunta[perguntaAtual].enunciado, 20), 100, 20, BLACK);
+
+        //Questoes
+        for(int i = 0; i < 4; i++){
+            char opcao = 'A' + i;
+            if(opcao == pergunta[perguntaAtual].resposta){
+                button_animation(alt_buttons[i], GREEN);
+            }else{
+                button_animation(alt_buttons[i], RED);
+            }
+            
+            sprintf(buffer, "%c) %s", 'A' + i, alternativas[i]);
+            DrawText(buffer, centralizar_X(alternativas[i], 20), 140 + i * 30, 20, BLACK);
+
+            if(CheckCollisionPointRec(GetMousePosition(), alt_buttons[i])){
+                if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
+                    if(opcao == pergunta[perguntaAtual].resposta){
+                        pressed = 1;
+                    }else{
+                        pressed = 2;
+                    }
+                }
+
+            }
+
+        }
+
+        //Valor
+        DrawText("Valendo: ", 450, 350, 20, BLACK);
+        sprintf(buffer, "R$ %d",pergunta[perguntaAtual].valor);
+        DrawText(buffer, 600, 350, 20, BLACK);
+
+        //Ganho
+        DrawText("Valor Ganho: ", 450, 380, 20, BLACK);
+        sprintf(buffer, "R$ %d", dinheiroGanho);
+        DrawText(buffer, 600, 380, 20, BLACK);
+        
+
+
+
+
+        if(pressed == 1){
+            DrawText("Acertou", 350, 290, 20, BLACK);   
+            dinheiroGanho = pergunta[perguntaAtual].valor;
+        }else if(pressed == 2){
+            DrawText("Errou", 350, 290, 20, BLACK);
+        }
+
+        if((pressed == 1 || pressed == 2) && !esperando){
+            esperando = true;
+            tempoEsperando = GetTime();
+        }
+
+        if(esperando){
+            if(GetTime() - tempoEsperando >= delay){
+                esperando = false;
+                pressed = 0;
+                recebeuDicaNaVez = 0;
+                jaUsouDicaMsg = false;
+                perguntaAtual++;
+            }
+            if(perguntaAtual >= total){
+                gameFinal = 1;
+            }
+        }
+
+        if (gameFinal == 1) {
+            ClearBackground(WHITE);
+            DrawText("Parabéns! Você terminou o jogo!", 380, 400, 20, BLACK);
+            DrawText("Clique para voltar ao menu", 380, 430, 20, BLACK);
+            EndDrawing();
+            continue;
+        }
+
+        //Dicas
+        if(dicasDisponiveis > 0 && strlen(pergunta[perguntaAtual].dica) > 0){
+            sprintf(buffer, "%d", dicasDisponiveis);
+            if(!jaUsouDicaMsg){
+                button_animation(dicas, GOLD);
+            }else{
+                button_animation(dicas, RED);
+            }
+            DrawText("Receber dica", 100, 350, 20, BLACK);
+            DrawText("Dicas Disponiveis:", 100, 380, 20, BLACK); 
+            DrawText(buffer, 280, 380, 20, BLACK);
+            if(CheckCollisionPointRec(GetMousePosition(), dicas)){
+                if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
+                    if(recebeuDicaNaVez == 0){
+                        recebeuDicaNaVez++;
+                        dicasDisponiveis--;
+                        DrawText(buffer, 280, 380, 20, BLACK);
+                    }
+                    else{
+                        jaUsouDicaMsg = true;
+                    }
+                }   
+            }
+        
+        }else{
+            DrawText("Você não tem mais dicas disponíveis ou esta pergunta não tem dica.", centralizar_X("Você não tem mais dicas disponíveis ou esta pergunta não tem dica.", 20), 430, 20, BLACK);
+        }
+        if (recebeuDicaNaVez == 1) {
+            DrawText(pergunta[perguntaAtual].dica, centralizar_X(pergunta[perguntaAtual].dica, 20), 430, 20, BLACK);
+           if (jaUsouDicaMsg) {
+                DrawText("Você já usou a dica para esta pergunta.", centralizar_X("Você já usou a dica para esta pergunta.", 20), 430, 20, BLACK);
+            }
+        }
+
+        button_animation(voltar, GOLD);
+        DrawText("Voltar ao menu!", voltar.x, voltar.y, 20, BLACK);  
+        if(CheckCollisionPointRec(GetMousePosition(), voltar)){
+            if(IsMouseButtonDown(MOUSE_LEFT_BUTTON)){
+                return;
+            }
+        }
+
+        EndDrawing();
+        //Marcos
+        /*
+        if(m >= marco2){
+            valorSeguro = pergunta[marco2 - 1].valor;
+        }else if(m >= marco1){
+            valorSeguro = pergunta[marco1 - 1].valor;
+        }else{
+            valorSeguro = 0;
+        }//else
+
+        if(m == total){
+            printf("Parabéns! Você respondeu todas as pergunta corretamente e ganhou o maior prêmio de R$ %d de reais!\n", dinheiroGanho);
+        }else{
+        printf("Fim de jogo. Você ganhou R$ %d reais.\n", valorSeguro);
+        printf("Tente novamente!\n");
+        */
+        //Voltar
+
+    }
+
+    /*
     printf("===============================\n");
     printf("Vai começar o jogo do Milhão!\n");
     printf("Responda as pergunta com as letras A, B, C ou D.\n");
@@ -375,7 +552,7 @@ void jogar(Pergunta *pergunta, int total){
         printf("Pergunta %d (R$ %d):\n%s\n", i + 1, pergunta[i].valor, pergunta[i].enunciado);
         /*for(int j = 0; j < 4; j++){
             printf("%c) %s\n", 'A' + j, pergunta[i].opcoes[j]);
-        }//for*/
+        }//for
         printf("A) %s\n", pergunta[i].alt1);
         printf("B) %s\n", pergunta[i].alt2);
         printf("C) %s\n", pergunta[i].alt3);
@@ -440,7 +617,8 @@ void jogar(Pergunta *pergunta, int total){
     }else{
         printf("Fim de jogo. Você ganhou R$ %d reais.\n", valorSeguro);
         printf("Tente novamente!\n");
-    }//else
+    }//else*/
+    
 }//void jogar
 
 char lerResposta(){
@@ -481,14 +659,16 @@ char paraMaiuscula(char c){
 //'X' para pedir dica (DC)
 //'\0' para inválidos
 
-void button_animation(Rectangle button){
+void button_animation(Rectangle button, Color color){
     DrawRectangleRec(button, WHITE);
     if(CheckCollisionPointRec(GetMousePosition(), button)){
         DrawRectangleRec(button, LIGHTGRAY);
         if(IsMouseButtonDown(MOUSE_LEFT_BUTTON)){
-            DrawRectangleRec(button, GOLD);
+            DrawRectangleRec(button, color);
         }
     }
 }
 
-
+int centralizar_X(const char *name_button, int fontSize){
+    return (GetScreenWidth() - MeasureText(name_button, fontSize)) / 2;
+}

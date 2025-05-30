@@ -56,5 +56,7 @@ char lerResposta();
 //Converte um caractere para maiusculo
 char paraMaiuscula(char c);
 
-void button_animation(Rectangle button);
+void button_animation(Rectangle button, Color color);
+
+int centralizar_X(const char *name_button, int fontSize);
 #endif
