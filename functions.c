@@ -316,34 +316,6 @@ void menu(Pergunta **perguntas, int *tam) {
     UnloadTexture(logo_show);
 }      
 
-    
-/*
-        switch(opcao) {
-            case 1:
-                jogar(*perguntas, *tam);
-                break;
-            
-            case 2:
-                inserir(perguntas, tam);
-                break;
-
-            case 3:
-                listar(*perguntas, *tam);
-                break;
-            
-            case 4:
-                pesquisar(*perguntas, *tam);
-                break;
-
-            case 5:
-                alterar(*perguntas, *tam);
-                break;
-
-            case 6:
-                excluir(perguntas, tam);
-                break;
-        */
-
 void liberarMemoria(Pergunta *perguntas, int tam){
     for(int i=0; i < tam; i++){
         free(perguntas[i].enunciado);
@@ -369,7 +341,7 @@ void jogar(Pergunta *pergunta, int total){
     int valorSeguro = 0;
     Rectangle voltar = {centralizar_X("Voltar ao menu!", 20), 480, MeasureText("Voltar ao menu!", 20), 20};
     Rectangle alt_buttons[4];
-    Rectangle dicas = {100, 350, MeasureText("Receber dica",20), 20};
+    Rectangle dicas = {100, 270, MeasureText("Receber dica",20), 20};
     bool jaUsouDicaMsg = false;
     bool esperando = false;
     double tempoEsperando = 0;
@@ -391,7 +363,7 @@ void jogar(Pergunta *pergunta, int total){
         for(int i = 0; i < 4; i++){
             sprintf(buffer, "%c) %s", 'A' + i, alternativas[i]);
             alt_buttons[i].x = centralizar_X(alternativas[i], 20);
-            alt_buttons[i].y = 140 + i * 30;
+            alt_buttons[i].y = 90 + i * 30;
             alt_buttons[i].width = MeasureText(buffer, 20);
             alt_buttons[i].height = 20;
         }
@@ -403,7 +375,7 @@ void jogar(Pergunta *pergunta, int total){
     
 
         //Enunciado
-        DrawText(pergunta[perguntaAtual].enunciado, centralizar_X(pergunta[perguntaAtual].enunciado, 20), 100, 20, BLACK);
+        DrawText(pergunta[perguntaAtual].enunciado, centralizar_X(pergunta[perguntaAtual].enunciado, 20), 50, 20, BLACK);
 
         //Questoes
         for(int i = 0; i < 4; i++){
@@ -415,7 +387,7 @@ void jogar(Pergunta *pergunta, int total){
             }
             
             sprintf(buffer, "%c) %s", 'A' + i, alternativas[i]);
-            DrawText(buffer, centralizar_X(alternativas[i], 20), 140 + i * 30, 20, BLACK);
+            DrawText(buffer, centralizar_X(alternativas[i], 20), 90 + i * 30, 20, BLACK);
 
             if(CheckCollisionPointRec(GetMousePosition(), alt_buttons[i])){
                 if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
@@ -430,26 +402,33 @@ void jogar(Pergunta *pergunta, int total){
 
         }
 
+        if (pressed == 1){
+            DrawText("Resposta correta!", centralizar_X("Reposta correta!", 20), 225, 20, BLACK);
+            dinheiroGanho = pergunta[perguntaAtual].valor;
+        }     
+
+        if(perguntaAtual >= marco2){
+            valorSeguro = pergunta[marco2 - 1].valor;
+        }else if(perguntaAtual >= marco1){
+            valorSeguro = pergunta[marco1 - 1].valor;
+        }else{
+                valorSeguro = 0;
+        }
+
         //Valor
-        DrawText("Valendo: ", 450, 350, 20, BLACK);
+        DrawText("Valendo: ", 450, 270, 20, BLACK);
         sprintf(buffer, "R$ %d",pergunta[perguntaAtual].valor);
-        DrawText(buffer, 600, 350, 20, BLACK);
+        DrawText(buffer, 600, 270, 20, BLACK);
 
         //Ganho
-        DrawText("Valor Ganho: ", 450, 380, 20, BLACK);
+        DrawText("Valor Ganho: ", 450, 300, 20, BLACK);
         sprintf(buffer, "R$ %d", dinheiroGanho);
-        DrawText(buffer, 600, 380, 20, BLACK);
-        
+        DrawText(buffer, 600, 300, 20, BLACK);
 
-
-
-
-        if(pressed == 1){
-            DrawText("Acertou", 350, 290, 20, BLACK);   
-            dinheiroGanho = pergunta[perguntaAtual].valor;
-        }else if(pressed == 2){
-            DrawText("Errou", 350, 290, 20, BLACK);
-        }
+        //Errar
+        DrawText("Se errar: ", 450, 330, 20, BLACK);
+        sprintf(buffer, "R$ %d", valorSeguro);
+        DrawText(buffer, 600, 330, 20, BLACK);
 
         if((pressed == 1 || pressed == 2) && !esperando){
             esperando = true;
@@ -459,22 +438,22 @@ void jogar(Pergunta *pergunta, int total){
         if(esperando){
             if(GetTime() - tempoEsperando >= delay){
                 esperando = false;
+
+                if(pressed == 2){
+                    jogo_encerrado(pressed, valorSeguro);
+                    break;
+                }
+
+                perguntaAtual++;
                 pressed = 0;
                 recebeuDicaNaVez = 0;
                 jaUsouDicaMsg = false;
-                perguntaAtual++;
-            }
-            if(perguntaAtual >= total){
-                gameFinal = 1;
-            }
-        }
 
-        if (gameFinal == 1) {
-            ClearBackground(WHITE);
-            DrawText("Parabéns! Você terminou o jogo!", 380, 400, 20, BLACK);
-            DrawText("Clique para voltar ao menu", 380, 430, 20, BLACK);
-            EndDrawing();
-            continue;
+                if(perguntaAtual >= total){
+                    jogo_encerrado(pressed, valorSeguro);
+                    return;
+                }
+            }
         }
 
         //Dicas
@@ -485,15 +464,15 @@ void jogar(Pergunta *pergunta, int total){
             }else{
                 button_animation(dicas, RED);
             }
-            DrawText("Receber dica", 100, 350, 20, BLACK);
-            DrawText("Dicas Disponiveis:", 100, 380, 20, BLACK); 
-            DrawText(buffer, 280, 380, 20, BLACK);
+            DrawText("Receber dica", 100, 270, 20, BLACK);
+            DrawText("Dicas Disponiveis:", 100, 300, 20, BLACK); 
+            DrawText(buffer, 280, 300, 20, BLACK);
             if(CheckCollisionPointRec(GetMousePosition(), dicas)){
                 if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
                     if(recebeuDicaNaVez == 0){
                         recebeuDicaNaVez++;
                         dicasDisponiveis--;
-                        DrawText(buffer, 280, 380, 20, BLACK);
+                        DrawText(buffer, 280, 300, 20, BLACK);
                     }
                     else{
                         jaUsouDicaMsg = true;
@@ -505,7 +484,7 @@ void jogar(Pergunta *pergunta, int total){
             DrawText("Você não tem mais dicas disponíveis ou esta pergunta não tem dica.", centralizar_X("Você não tem mais dicas disponíveis ou esta pergunta não tem dica.", 20), 430, 20, BLACK);
         }
         if (recebeuDicaNaVez == 1) {
-            DrawText(pergunta[perguntaAtual].dica, centralizar_X(pergunta[perguntaAtual].dica, 20), 430, 20, BLACK);
+            DrawText(pergunta[perguntaAtual].dica, centralizar_X(pergunta[perguntaAtual].dica, 20), 380, 20, BLACK);
            if (jaUsouDicaMsg) {
                 DrawText("Você já usou a dica para esta pergunta.", centralizar_X("Você já usou a dica para esta pergunta.", 20), 430, 20, BLACK);
             }
@@ -520,144 +499,8 @@ void jogar(Pergunta *pergunta, int total){
         }
 
         EndDrawing();
-        //Marcos
-        /*
-        if(m >= marco2){
-            valorSeguro = pergunta[marco2 - 1].valor;
-        }else if(m >= marco1){
-            valorSeguro = pergunta[marco1 - 1].valor;
-        }else{
-            valorSeguro = 0;
-        }//else
-
-        if(m == total){
-            printf("Parabéns! Você respondeu todas as pergunta corretamente e ganhou o maior prêmio de R$ %d de reais!\n", dinheiroGanho);
-        }else{
-        printf("Fim de jogo. Você ganhou R$ %d reais.\n", valorSeguro);
-        printf("Tente novamente!\n");
-        */
-        //Voltar
-
     }
-
-    /*
-    printf("===============================\n");
-    printf("Vai começar o jogo do Milhão!\n");
-    printf("Responda as pergunta com as letras A, B, C ou D.\n");
-    printf("Você tem direito a 2 dicas curtas durante o jogo.\n");
-    printf("Para usar uma dica, digite 'DC'.\n");
-    printf("===============================\n\n");
-
-    for(i = 0; i < total; i++){
-        printf("Pergunta %d (R$ %d):\n%s\n", i + 1, pergunta[i].valor, pergunta[i].enunciado);
-        /*for(int j = 0; j < 4; j++){
-            printf("%c) %s\n", 'A' + j, pergunta[i].opcoes[j]);
-        }//for
-        printf("A) %s\n", pergunta[i].alt1);
-        printf("B) %s\n", pergunta[i].alt2);
-        printf("C) %s\n", pergunta[i].alt3);
-        printf("D) %s\n", pergunta[i].alt4);
-        if(dicasDisponiveis > 0 && strlen(pergunta[i].dica) > 0){
-            printf("Você pode digitar 'DC' para uma dica (dicas restantes: %d).\n", dicasDisponiveis);
-        }//if
-
-        int recebeuDicaNaVez = 0;
-
-        while(1){
-            printf("Sua resposta (A, B, C, D ou DC para dica): ");
-            resposta = lerResposta();
-
-            if(resposta == 'X'){
-                if(dicasDisponiveis > 0 && strlen(pergunta[i].dica) > 0){
-                    if(!recebeuDicaNaVez){
-                        printf("Dica: %s\n", pergunta[i].dica);
-                        dicasDisponiveis--;
-                        recebeuDicaNaVez = 1;
-                        printf("Dicas restantes: %d\n", dicasDisponiveis);
-                    }else{
-                        printf("Você já usou a dica para esta pergunta.\n");
-                    }//else
-                }else{
-                    printf("Você não tem mais dicas disponíveis ou esta pergunta não tem dica.\n");
-                }//if
-                continue; //pergunta a resposta após mostrar a dica
-            }//if
-
-            if(resposta >= 'A' && resposta <= 'D'){
-                break; //resposta válida
-            }//if
-
-            printf("Resposta inválida. Digite A, B, C, D ou DC para dica.\n");
-        }//while
-
-        if(resposta == pergunta[i].resposta){
-            printf("Correto!\n\n");
-            dinheiroGanho = pergunta[i].valor;
-        }else{
-            printf("Incorreto! A resposta correta era %c.\n\n", pergunta[i].resposta);
-            break;
-        }//else
-    }//void jogar
-
-    //Marcos de segurança e valores correspondentes para garantir dinheiro em caso de perda
-    int marco1 = 5; // pergunta 5
-    int marco2 = 10; // pergunta 10
-    int valorSeguro = 0;
-
-    if(i >= marco2){
-        valorSeguro = pergunta[marco2 - 1].valor;
-    }else if(i >= marco1){
-        valorSeguro = pergunta[marco1 - 1].valor;
-    }else{
-        valorSeguro = 0;
-    }//else
-
-    if(i == total){
-        printf("Parabéns! Você respondeu todas as pergunta corretamente e ganhou o maior prêmio de R$ %d de reais!\n", dinheiroGanho);
-    }else{
-        printf("Fim de jogo. Você ganhou R$ %d reais.\n", valorSeguro);
-        printf("Tente novamente!\n");
-    }//else*/
-    
 }//void jogar
-
-char lerResposta(){
-    char buf[3]; //para ler duas letras + '\0'
-    scanf("%2s", buf);
-
-    //Converte para maiúscula
-    for(int i = 0; i < (int)strlen(buf); i++){
-        if(buf[i] >= 'a' && buf[i] <= 'z'){
-            buf[i] = buf[i] - ('a' - 'A');
-        }//if
-    }//for
-
-    if(strlen(buf) == 1){
-        char c = buf[0];
-        if(c >= 'A' && c <= 'D'){
-            return c;
-        }//if
-    } else if(strlen(buf) == 2){
-        if(buf[0] == 'D' && buf[1] == 'C'){
-            return 'X'; //sinaliza pedido de dica
-        }//if
-    }//for
-    return '\0'; //inválida
-}//char ler resposta
-
-//Função para converter caracteres minúsculos para maiúsculos
-char paraMaiuscula(char c){
-    if(c >= 'a' && c <= 'z'){
-        return c - ('a' - 'A');
-    }//if
-    return c;
-}//char converter para maiuscula
-
-//Função para ler a resposta do jogador, aceita "DC" para dica
-//Retorna:
-//'A' 'B' 'C' 'D' para respostas válidas
-//'X' para pedir dica (DC)
-//'\0' para inválidos
 
 void button_animation(Rectangle button, Color color){
     DrawRectangleRec(button, WHITE);
@@ -671,4 +514,29 @@ void button_animation(Rectangle button, Color color){
 
 int centralizar_X(const char *name_button, int fontSize){
     return (GetScreenWidth() - MeasureText(name_button, fontSize)) / 2;
+}
+
+void jogo_encerrado(int pressed, int valorSeguro){
+    char buffer[255];
+    WaitTime(1.0);
+    while(!WindowShouldClose()){
+        BeginDrawing();
+        ClearBackground(WHITE);
+
+        if(pressed == 0){
+            sprintf(buffer, "Você ganhou: R$ %d Reais!", valorSeguro);
+            DrawText("Parabéns! Você respondeu todas as perguntas!", centralizar_X("Parabéns! Você respondeu todas as perguntas!", 20), 200, 20, BLACK);
+            DrawText(buffer, centralizar_X(buffer, 20), 230, 20, BLACK);
+            DrawText("Clique para voltar ao menu", centralizar_X("Clique para voltar ao menu", 20), 430, 20, BLACK);
+        }else if(pressed == 2){
+            sprintf(buffer, "Você ganhou: R$ %d Reais!", valorSeguro);
+            DrawText("Fim de Joogo. Tente Novamente!", centralizar_X("Fim de Joogo. Tente Novamente!", 20), 200, 20, BLACK);
+            DrawText(buffer, centralizar_X(buffer, 20), 230, 20, BLACK);
+        }
+
+        EndDrawing();
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
+            return;
+        }
+    }
 }
