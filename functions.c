@@ -277,14 +277,13 @@ void menu(Pergunta **perguntas, int *tam) {
     const char *nameButtons[] = {"Jogar", "Adicionar pergunta", "Listar perguntas", "Pesquisar perguntas", "Alterar perguntas", "Excluir perguntas", "Salvar e sair"};
     Texture2D logo_show = LoadTexture("./show.png");
     Rectangle play[7]; 
+
     for(int i = 0; i < 7; i++){
         play[i].x = centralizar_X(nameButtons[i], 20);
         play[i].y = 280 + i * 30;
         play[i].width = MeasureText(nameButtons[i], 20);
         play[i].height = 20;
     }
-
-    bool clicou = false;
 
     while(!WindowShouldClose()){
         BeginDrawing();
@@ -316,7 +315,7 @@ void menu(Pergunta **perguntas, int *tam) {
     UnloadTexture(logo_show);
 }      
 
-void liberarMemoria(Pergunta *perguntas, int tam){
+void liberar_memoria(Pergunta *perguntas, int tam){
     for(int i=0; i < tam; i++){
         free(perguntas[i].enunciado);
         free(perguntas[i].alt1);
@@ -329,32 +328,29 @@ void liberarMemoria(Pergunta *perguntas, int tam){
 }
 
 void jogar(Pergunta *pergunta, int total){
-    int perguntaAtual = 0;
-    char resposta;
-    char buffer[255];
-    int dicasDisponiveis = 2;
-    int dinheiroGanho = 0;
-    int recebeuDicaNaVez = 0;
-    int pressed = 0;
+    //Declaração das variaveis/flags de controle
+    float delay = 1.5; //Delay entre perguntas
+
     int marco1 = 5; // pergunta 5
     int marco2 = 10; // pergunta 10
+    int gameFinal = 0;
+    int dicaUsada = 0;
     int valorSeguro = 0;
+    int perguntaAtual = 0;
+    int dinheiroGanho = 0;
+    int tempoEsperando = 0;
+    int recebeuDicaNaVez = 0;   
+    int dicasDisponiveis = 2;
+    int respostaSelecionada = 0;
+    int esperandoProxPergunta = 0;
+    
+    //Declaração de buffer que será utilizado para formatação de strings
+    char buffer[256];
+
+    //Cria os 'botões' referentes a label respectiva.
     Rectangle voltar = {centralizar_X("Voltar ao menu!", 20), 480, MeasureText("Voltar ao menu!", 20), 20};
     Rectangle alt_buttons[4];
     Rectangle dicas = {100, 270, MeasureText("Receber dica",20), 20};
-    bool jaUsouDicaMsg = false;
-    bool esperando = false;
-    double tempoEsperando = 0;
-    double delay = 1;
-    int gameFinal = 0;
-    /*
-    const char *tutorial[] = {
-        "Vai começar o jogo do Milhão!",
-        "Responda as pergunta escolhendo alguma das alternativas",
-        "Você pode escolher entre as alternativas A, B, C ou D.",
-        "Você tem direito a 2 dicas curtas durante o jogo.",
-        "Para usar uma dica, digite 'DC'."
-    };*/
 
     while(!WindowShouldClose()){
         BeginDrawing();
@@ -367,12 +363,6 @@ void jogar(Pergunta *pergunta, int total){
             alt_buttons[i].width = MeasureText(buffer, 20);
             alt_buttons[i].height = 20;
         }
-
-        /*
-        for(int i = 0; i < 4; i++){
-            DrawText(tutorial[i], centralizar_X(tutorial[i], 20), 100 + i * 30, 20, BLACK);
-        }*/
-    
 
         //Enunciado
         DrawText(pergunta[perguntaAtual].enunciado, centralizar_X(pergunta[perguntaAtual].enunciado, 20), 50, 20, BLACK);
@@ -389,77 +379,83 @@ void jogar(Pergunta *pergunta, int total){
             sprintf(buffer, "%c) %s", 'A' + i, alternativas[i]);
             DrawText(buffer, centralizar_X(alternativas[i], 20), 90 + i * 30, 20, BLACK);
 
+            //Verifica se a alternativa escolhida pelo usuario está correta ou não.
             if(CheckCollisionPointRec(GetMousePosition(), alt_buttons[i])){
                 if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
                     if(opcao == pergunta[perguntaAtual].resposta){
-                        pressed = 1;
+                        respostaSelecionada = 1;
                     }else{
-                        pressed = 2;
+                        respostaSelecionada = 2;
                     }
                 }
-
             }
-
         }
 
-        if (pressed == 1){
-            DrawText("Resposta correta!", centralizar_X("Reposta correta!", 20), 225, 20, BLACK);
+        //Exibe a mensage se o usuario respondeu a pergunta atual corretamente ou não, se sim atualiza o valor ganho.
+        if (respostaSelecionada == 1){
+            DrawText("Resposta correta!", centralizar_X("Reposta correta!", 20), 225, 20, GREEN);
             dinheiroGanho = pergunta[perguntaAtual].valor;
-        }     
+        }else if(respostaSelecionada == 2){
+            DrawText("Resposta Incorreta!", centralizar_X("Reposta correta!", 20), 225, 20, RED);
+        }
 
+        //Guarda valores da pergunta 5 e pergunta 10 caso erre a próxima questão.
         if(perguntaAtual >= marco2){
             valorSeguro = pergunta[marco2 - 1].valor;
         }else if(perguntaAtual >= marco1){
             valorSeguro = pergunta[marco1 - 1].valor;
         }else{
-                valorSeguro = 0;
+            valorSeguro = 0;
         }
 
-        //Valor
+        //Mostra o valor que a pergunta vale
         DrawText("Valendo: ", 450, 270, 20, BLACK);
         sprintf(buffer, "R$ %d",pergunta[perguntaAtual].valor);
         DrawText(buffer, 600, 270, 20, BLACK);
 
-        //Ganho
+        //Mostra o valor que ganha se Acertar
         DrawText("Valor Ganho: ", 450, 300, 20, BLACK);
         sprintf(buffer, "R$ %d", dinheiroGanho);
         DrawText(buffer, 600, 300, 20, BLACK);
 
-        //Errar
+        //Mostra o valor que ganha se errar
         DrawText("Se errar: ", 450, 330, 20, BLACK);
         sprintf(buffer, "R$ %d", valorSeguro);
         DrawText(buffer, 600, 330, 20, BLACK);
 
-        if((pressed == 1 || pressed == 2) && !esperando){
-            esperando = true;
+        //Cria um delay entre uma pergunta e outra
+        if((respostaSelecionada == 1 || respostaSelecionada == 2) && !esperandoProxPergunta){
+            esperandoProxPergunta = 1;
             tempoEsperando = GetTime();
         }
 
-        if(esperando){
+        if(esperandoProxPergunta){
             if(GetTime() - tempoEsperando >= delay){
-                esperando = false;
-
-                if(pressed == 2){
-                    jogo_encerrado(pressed, valorSeguro);
+                //Se respondeu errado
+                if(respostaSelecionada == 2){
+                    jogo_encerrado(respostaSelecionada, valorSeguro, 0);
                     break;
                 }
 
-                perguntaAtual++;
-                pressed = 0;
+                //Zera as variaveis e avança para a proxima pergunta
+                esperandoProxPergunta = 0;
+                respostaSelecionada = 0;
                 recebeuDicaNaVez = 0;
-                jaUsouDicaMsg = false;
+                dicaUsada = 0;
+                perguntaAtual++;
 
+                //Se respondeu todas as perguntas corretas
                 if(perguntaAtual >= total){
-                    jogo_encerrado(pressed, valorSeguro);
-                    return;
+                    jogo_encerrado(respostaSelecionada, valorSeguro, dinheiroGanho);
+                    break;
                 }
             }
         }
 
-        //Dicas
+        //Faz a validação das dicas disponiveis
         if(dicasDisponiveis > 0 && strlen(pergunta[perguntaAtual].dica) > 0){
             sprintf(buffer, "%d", dicasDisponiveis);
-            if(!jaUsouDicaMsg){
+            if(!dicaUsada){
                 button_animation(dicas, GOLD);
             }else{
                 button_animation(dicas, RED);
@@ -475,21 +471,24 @@ void jogar(Pergunta *pergunta, int total){
                         DrawText(buffer, 280, 300, 20, BLACK);
                     }
                     else{
-                        jaUsouDicaMsg = true;
+                        dicaUsada = 1;
                     }
                 }   
             }
-        
         }else{
             DrawText("Você não tem mais dicas disponíveis ou esta pergunta não tem dica.", centralizar_X("Você não tem mais dicas disponíveis ou esta pergunta não tem dica.", 20), 430, 20, BLACK);
         }
+
+        //Exibe o texto que já foi utilizado dica na pergunta
         if (recebeuDicaNaVez == 1) {
             DrawText(pergunta[perguntaAtual].dica, centralizar_X(pergunta[perguntaAtual].dica, 20), 380, 20, BLACK);
-           if (jaUsouDicaMsg) {
+           if (dicaUsada == 1) {
                 DrawText("Você já usou a dica para esta pergunta.", centralizar_X("Você já usou a dica para esta pergunta.", 20), 430, 20, BLACK);
             }
         }
 
+
+        //Botão para voltar ao menu
         button_animation(voltar, GOLD);
         DrawText("Voltar ao menu!", voltar.x, voltar.y, 20, BLACK);  
         if(CheckCollisionPointRec(GetMousePosition(), voltar)){
@@ -516,22 +515,44 @@ int centralizar_X(const char *name_button, int fontSize){
     return (GetScreenWidth() - MeasureText(name_button, fontSize)) / 2;
 }
 
-void jogo_encerrado(int pressed, int valorSeguro){
+void tutorial(){
+    const char *tutorial[] = {
+        "Vai começar o jogo do Milhão!",
+        "Responda as pergunta escolhendo alguma das alternativas",
+        "Você pode escolher entre as alternativas A, B, C ou D.",
+        "Você tem direito a 2 dicas curtas durante o jogo.",
+        "Para usar uma dica, clique no botão 'Receber Dica'."
+    };
+    int tempoEsperando = GetTime();
+    while(!WindowShouldClose()){
+        BeginDrawing();
+        ClearBackground(WHITE);
+        for(int i = 0; i < 5; i++){
+            DrawText(tutorial[i], centralizar_X(tutorial[i], 20), 150 + i * 50, 20, BLACK);
+        }  
+        EndDrawing();
+        if(GetTime() - tempoEsperando >= 7){
+            return;
+        }
+    }
+}
+
+void jogo_encerrado(int respostaSelecionada, int valorSeguro, int valorGanho){
     char buffer[255];
-    WaitTime(1.0);
     while(!WindowShouldClose()){
         BeginDrawing();
         ClearBackground(WHITE);
 
-        if(pressed == 0){
-            sprintf(buffer, "Você ganhou: R$ %d Reais!", valorSeguro);
+        if(respostaSelecionada == 0){
+            sprintf(buffer, "Você ganhou: R$ %d Reais!", valorGanho);
             DrawText("Parabéns! Você respondeu todas as perguntas!", centralizar_X("Parabéns! Você respondeu todas as perguntas!", 20), 200, 20, BLACK);
             DrawText(buffer, centralizar_X(buffer, 20), 230, 20, BLACK);
             DrawText("Clique para voltar ao menu", centralizar_X("Clique para voltar ao menu", 20), 430, 20, BLACK);
-        }else if(pressed == 2){
+        }else if(respostaSelecionada == 2){
             sprintf(buffer, "Você ganhou: R$ %d Reais!", valorSeguro);
-            DrawText("Fim de Joogo. Tente Novamente!", centralizar_X("Fim de Joogo. Tente Novamente!", 20), 200, 20, BLACK);
+            DrawText("Fim de Jogo. Tente Novamente!", centralizar_X("Fim de Joogo. Tente Novamente!", 20), 200, 20, BLACK);
             DrawText(buffer, centralizar_X(buffer, 20), 230, 20, BLACK);
+            DrawText("Clique para voltar ao menu", centralizar_X("Clique para voltar ao menu", 20), 430, 20, BLACK);
         }
 
         EndDrawing();

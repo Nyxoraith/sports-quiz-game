@@ -7,6 +7,7 @@
  * @struct Pergunta
  * @brief Estrutura que representa uma pergunta do Quiz.
  */
+
 typedef struct{
     char *enunciado, *alt1, *alt2, *alt3, *alt4, *dica;
     char opcoes[4][50];
@@ -45,14 +46,21 @@ void excluir(Pergunta **pergunta, int *tam);
 void salvar(Pergunta *pergunta, int tam);
 
 //Libera a memória alocada pelas perguntas
-void liberarMemoria(Pergunta *perguntas, int tam);
+void liberar_memoria(Pergunta *perguntas, int tam);
 
 //Inicia o Jogo.
 void jogar(Pergunta perguntas[], int total);
 
+//Faz a animação de hover e click em um botão
 void button_animation(Rectangle button, Color color);
 
+//Centraliza o eixo X de um texto na tela dinamicamente.
 int centralizar_X(const char *name_button, int fontSize);
 
-void jogo_encerrado(int pressed, int valorSeguro);
+//Exibe a tela 'tutorial' antes de iniciar o jogo.
+void tutorial();
+
+//Exibe a tela de encerramento do jogo após ganhar ou perder.
+void jogo_encerrado(int pressed, int valorSeguro, int valorGanho);
+
 #endif
