@@ -4,7 +4,7 @@
 #include "raylib.h"
 
 int main(){
-    const char *arquivo = "questoes.csv";
+    const char *arquivo = "resources/questoes.csv";
     int tam = contar_linhas(arquivo);
     Pergunta *perguntas = carrega_perguntas(arquivo, tam);
     if (perguntas == NULL) {

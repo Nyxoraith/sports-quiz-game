@@ -1,10 +1,13 @@
 #ifndef JOGODOMILHAO_H
 #define JOGODOMILHAO_H
 
+#include "raylib.h"
+
 /**
  * @struct Pergunta
  * @brief Estrutura que representa uma pergunta do Quiz.
  */
+
 typedef struct{
     char *enunciado, *alt1, *alt2, *alt3, *alt4, *dica;
     char opcoes[4][50];
@@ -30,7 +33,6 @@ void inserir(Pergunta **pergunta, int *tam);
 //Lista as perguntas existentes no vetor
 void listar(Pergunta *pergunta, int tam);
 
-
 //Pesquisa uma pergunta pelo enunciado
 int pesquisar(Pergunta *pergunta, int tam);
 
@@ -40,27 +42,25 @@ void alterar(Pergunta *pergunta, int tam);
 //Exlcui uma pergunta já existente
 void excluir(Pergunta **pergunta, int *tam);
 
-
 //Salva as perguntas/alterações realizadas no arquivo
 void salvar(Pergunta *pergunta, int tam);
 
 //Libera a memória alocada pelas perguntas
-void liberarMemoria(Pergunta *perguntas, int tam);
-
-//Limpa a tela do terminal
-void limparTela();
-
-//Pausa a execução por alguns segundos para facilitar a leitura
-void pause_seconds(int seconds);
-
+void liberar_memoria(Pergunta *perguntas, int tam);
 
 //Inicia o Jogo.
-void jogar(Pergunta perguntas[], int total);
+void jogar(Pergunta *perguntas, int total);
 
-//Lê a resposta do usuário
-char lerResposta();
+//Faz a animação de hover e click em um botão
+void button_animation(Rectangle button, Color color);
 
-//Converte um caractere para maiusculo
-char paraMaiuscula(char c);
+//Centraliza o eixo X de um texto na tela dinamicamente.
+int centralizar_X(const char *name_button, int fontSize);
+
+//Exibe a tela 'tutorial' antes de iniciar o jogo.
+void tutorial();
+
+//Exibe a tela de encerramento do jogo após ganhar ou perder.
+void jogo_encerrado(int pressed, int valorSeguro, int valorGanho);
 
 #endif

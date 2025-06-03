@@ -275,7 +275,7 @@ void salvar(Pergunta *pergunta, int tam){
 
 void menu(Pergunta **perguntas, int *tam) {
     const char *nameButtons[] = {"Jogar", "Adicionar pergunta", "Listar perguntas", "Pesquisar perguntas", "Alterar perguntas", "Excluir perguntas", "Salvar e sair"};
-    Texture2D logo_show = LoadTexture("./show.png");
+    Texture2D logo_show = LoadTexture("resources/show.png");
     Rectangle play[7]; 
 
     for(int i = 0; i < 7; i++){

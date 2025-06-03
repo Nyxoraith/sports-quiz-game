@@ -1,18 +1,23 @@
-# Variáveis
+# Variavel de configuração do compilador e linker
 CC = gcc
-CFLAGS = -I C:/raylib/raylib/include
-LDFLAGS = -L C:/raylib/raylib/lib -lraylib -lwinmm -lgdi32 -lopengl32
-SRC = main.c functions.c
+CFLAGS = -I C:/raylib/raylib/include   # Flags para compilar (.c -> .o)
+LDFLAGS = -L C:/raylib/raylib/lib -lraylib -lwinmm -lgdi32 -lopengl32  # Flags para linkar (.o -> .exe)
+
+# Diretorios
+SRC_DIR = src
+
+# Variaveis para listar arquivos fontes e obj
+SRC = $(wildcard $(SRC_DIR)/*.c)
 OBJ = $(SRC:.c=.o)
 TARGET = game.exe
 
 # Regra padrão
 all: $(TARGET)
 
-# Regra para compilar o programa
-$(TARGET): $(SRC)
-	$(CC) $(SRC) -o $(TARGET) $(CFLAGS) $(LDFLAGS)
+# Linkagem do programa .o -> .exe
+$(TARGET): $(OBJ)
+	$(CC) $(OBJ) -o $@ $(LDFLAGS)
 
-# Regra para limpar os arquivos gerados
-clean:
-	del /Q $(TARGET) *.o 2>nul || exit 0
+# Compila cada arquivo fonte em um objeto .c -> .o
+$(SRC_DIR)/%.o: $(SRC_DIR)/%.c
+	$(CC) -c $< -o $@ $(CFLAGS)
