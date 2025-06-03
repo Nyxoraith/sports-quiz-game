@@ -72,10 +72,27 @@ void aloca_copia(char **destino, const char *origem) {
 }
 
 void inserir(Pergunta **pergunta, int *tam){
-    char buffer[200];
+    //Variaveis temporarias para exibição
+    char buffer[255];
+    char label[64];
+    char enunciadoTmp[256];
+    char altsTmp[4][64];
+    char dicaTmp[256];
+    char respostaTmp[64];
+    char difTmp[64];
+    char valorTmp[64];
+
+    Rectangle back = {centralizar_X("Voltar ao menu!", 20), 450, MeasureText("Voltar ao menu!", 20), 20};
+
+    strcpy(label, "Digite o enunciado da pergunta:");
+    if(ler_string(label, buffer, 200) == 1){
+        return;
+    }
+
+    //Realoca o vetor
     *tam += 1;
     Pergunta *tmp = realloc(*pergunta, (*tam) * sizeof(Pergunta));
-    if (!tmp) {
+    if (tmp == NULL) {
         perror("Erro ao alocar espaço para nova pergunta: ");
         exit(1);
     }
@@ -83,50 +100,133 @@ void inserir(Pergunta **pergunta, int *tam){
 
     int i = *tam - 1;
 
-    printf("\nDigite o enunciado da pergunta: ");
-    fgets(buffer, 200, stdin);
-    buffer[strcspn(buffer, "\n")]='\0';
+    //Aloca o enunciado
     (*pergunta)[i].enunciado = malloc(strlen(buffer)+1);
     if((*pergunta)[i].enunciado == NULL){
         perror("Erro de alocação: ");
         exit(1);
     }
     strcpy((*pergunta)[i].enunciado, buffer);
+    sprintf(enunciadoTmp, "Enunciado: %s", (*pergunta)[i].enunciado);
 
+    //Alternativas
     char **alternativas[] = {&(*pergunta)[i].alt1, &(*pergunta)[i].alt2, &(*pergunta)[i].alt3, &(*pergunta)[i].alt4};
     for(int j = 0; j < 4; j++){
-        printf("Digite a alternativa %d: ", j+1);
-        fgets(buffer, 200, stdin);
-        buffer[strcspn(buffer, "\n")]='\0';
+        sprintf(label, "Digite a alternativa %c: ", 'A' + j);
+        if(ler_string(label, buffer, 200) == 1){
+            for(int k = 0; k < j; k++){
+                free(*alternativas[k]);
+            }
+            free((*pergunta)[i].enunciado);
+            *tam -= 1;
+            return;
+        }
+
         *alternativas[j] = malloc(strlen(buffer)+1);
         if(*alternativas[j] == NULL){
             perror("Erro de alocação: ");
             exit(1);
         }
         strcpy(*alternativas[j], buffer);
+        sprintf(altsTmp[j], "Alternativa %c: %s", 'A' + j, *alternativas[j]);
     }
 
-    printf("Digite a dica da pergunta: ");
-    fgets(buffer, 200, stdin);
-    buffer[strcspn(buffer, "\n")]='\0';
+    //Dica
+    strcpy(label, "Digite a dica da pergunta:");
+    if(ler_string(label, buffer, 200) == 1){
+        for(int k = 0; k < 4; k++){
+            free(*alternativas[k]);
+        }
+        free((*pergunta)[i].enunciado);
+        *tam -= 1;
+        return;
+    }
     (*pergunta)[i].dica = malloc(strlen(buffer)+1);
     if((*pergunta)[i].dica == NULL){
         perror("Erro de alocação: ");
         exit(1);
     }
     strcpy((*pergunta)[i].dica, buffer);
+    sprintf(dicaTmp, "Dica: %s", (*pergunta)[i].dica);
 
-    printf("Digite qual é a alternativa correta (A)(B)(C)(D): ");
-    scanf(" %c", &(*pergunta)[i].resposta);
+    //Reposta
+    strcpy(label, "Digite qual é a alternativa correta (A)(B)(C)(D):");
+    if(ler_string(label, buffer, 200) == 1){
+        free((*pergunta)[i].dica);
+        for(int k = 0; k < 4; k++){
+            free(*alternativas[k]);
+        }
+        free((*pergunta)[i].enunciado);
+        *tam -= 1;
+        return;
+    }
+    (*pergunta)[i].resposta = buffer[0];
+    sprintf(respostaTmp, "Resposta: %c", (*pergunta)[i].resposta);
 
-    printf("Digite qual o nível de dificuldade da pergunta: ");
-    scanf("%d", &(*pergunta)[i].nivelDif);
-    getchar();
+    //Dificuldade
+    strcpy(label, "Digite qual o nível de dificuldade da pergunta:");
+    if(ler_string(label, buffer, 200) == 1){
+        free((*pergunta)[i].dica);
+        for(int k=0; k<4; k++) free(*alternativas[k]);
+        free((*pergunta)[i].enunciado);
+        *tam -= 1;
+        return;
+    }
+    (*pergunta)[i].nivelDif = atoi(buffer);
+    sprintf(difTmp, "Dificuldade: %d", (*pergunta)[i].nivelDif);
 
-    printf("Digite qual o valor da pergunta: ");
-    scanf("%d", &(*pergunta)[i].valor);
-    getchar();
-    printf("\nDados inseridos com sucesso!\n");
+    //Valor
+    strcpy(label, "Digite qual o valor da pergunta:");
+    if(ler_string(label, buffer, 200) == 1){
+        free((*pergunta)[i].dica);
+        for(int k=0; k<4; k++) free(*alternativas[k]);
+        free((*pergunta)[i].enunciado);
+        *tam -= 1;
+        return;
+    }
+    (*pergunta)[i].valor = atoi(buffer);
+    sprintf(valorTmp, "Valor: %d", (*pergunta)[i].valor);
+
+    while(!WindowShouldClose()){
+        BeginDrawing();
+        ClearBackground(WHITE);
+
+        DrawText("Dados inseridos com sucesso!", centralizar_X("Dados inseridos com sucesso!", 20), 180, 20, BLACK);
+        //Enunciado
+        DrawText(enunciadoTmp, centralizar_X(enunciadoTmp, 20), 200, 20, BLACK);
+        
+        //Alternativas
+        for(int j = 0; j < 4; j++){
+            DrawText(altsTmp[j], centralizar_X(altsTmp[j], 20), 220 + j * 20, 20, BLACK);
+        }
+
+        //Dica
+        DrawText(dicaTmp, centralizar_X(dicaTmp, 20), 300, 20, BLACK);
+      
+        //Reposta
+        DrawText(respostaTmp, centralizar_X(respostaTmp, 20), 320, 20, BLACK);
+
+        //Dificuldade
+        DrawText(difTmp, centralizar_X(difTmp, 20), 340, 20, BLACK);
+
+        //Valor
+        DrawText(valorTmp, centralizar_X(valorTmp, 20), 360, 20, BLACK);
+
+        //Botão para voltar ao menu
+        button_animation(back, GOLD);
+        DrawText("Voltar ao menu!", back.x, back.y, 20, BLACK);  
+        EndDrawing();
+
+        if(IsKeyPressed(KEY_ENTER)){
+            return;
+        }
+
+        if(CheckCollisionPointRec(GetMousePosition(), back)){
+            if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)){
+                return;
+            }
+        }
+    }
 }
 
 void listar(Pergunta *pergunta, int tam){
@@ -260,7 +360,7 @@ void excluir(Pergunta **pergunta, int *tam){
 }
 
 void salvar(Pergunta *pergunta, int tam){
-    FILE *fp = fopen("questoes.csv", "w");
+    FILE *fp = fopen("resources/questoes.csv", "w");
     if (fp == NULL) {
         perror("Erro ao abrir o arquivo para salvar");
         return;
@@ -274,11 +374,11 @@ void salvar(Pergunta *pergunta, int tam){
 }
 
 void menu(Pergunta **perguntas, int *tam) {
-    const char *nameButtons[] = {"Jogar", "Adicionar pergunta", "Listar perguntas", "Pesquisar perguntas", "Alterar perguntas", "Excluir perguntas", "Salvar e sair"};
+    const char *nameButtons[] = {"Jogar", "Adicionar pergunta", "Listar perguntas", "Pesquisar perguntas", "Alterar perguntas", "Excluir perguntas", "Sair sem salvar", "Sair e salvar"};
     Texture2D logo_show = LoadTexture("resources/show.png");
-    Rectangle play[7]; 
+    Rectangle play[8]; 
 
-    for(int i = 0; i < 7; i++){
+    for(int i = 0; i < 8; i++){
         play[i].x = centralizar_X(nameButtons[i], 20);
         play[i].y = 280 + i * 30;
         play[i].width = MeasureText(nameButtons[i], 20);
@@ -291,7 +391,7 @@ void menu(Pergunta **perguntas, int *tam) {
 
         DrawTexture(logo_show, (GetScreenWidth() - logo_show.width)/2, 10, WHITE);
         DrawText("===== MENU =====", centralizar_X("===== MENU =====", 20), 230, 20, BLACK);
-        for(int i = 0; i < 7; i++){
+        for(int i = 0; i < 8; i++){
             button_animation(play[i], YELLOW);
             DrawText(nameButtons[i], play[i].x, play[i].y, 20, BLACK);  
         }
@@ -304,9 +404,24 @@ void menu(Pergunta **perguntas, int *tam) {
         }
 
 
+        //Inserir
+        if(CheckCollisionPointRec(GetMousePosition(), play[1])){
+            if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)){
+                inserir(perguntas, tam);
+            }
+        }
+
         //Exit
         if(CheckCollisionPointRec(GetMousePosition(), play[6])){
             if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)){
+                return;
+            }
+        }
+        
+        //Save & Exit
+        if(CheckCollisionPointRec(GetMousePosition(), play[7])){
+            if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)){
+                salvar(*perguntas, *tam);
                 return;
             }
         }
@@ -396,7 +511,7 @@ void jogar(Pergunta *pergunta, int total){
             DrawText("Resposta correta!", centralizar_X("Reposta correta!", 20), 225, 20, GREEN);
             dinheiroGanho = pergunta[perguntaAtual].valor;
         }else if(respostaSelecionada == 2){
-            DrawText("Resposta Incorreta!", centralizar_X("Reposta correta!", 20), 225, 20, RED);
+            DrawText("Resposta Incorreta!", centralizar_X("Reposta Incorreta!", 20), 225, 20, RED);
         }
 
         //Guarda valores da pergunta 5 e pergunta 10 caso erre a próxima questão.
@@ -560,4 +675,67 @@ void jogo_encerrado(int respostaSelecionada, int valorSeguro, int valorGanho){
             return;
         }
     }
+}
+
+int ler_string(char *label, char *input, int posY){
+    int contadorLetras = 0;
+    input[0]='\0';
+    Rectangle back = {centralizar_X("Voltar ao menu!", 20), 450, MeasureText("Voltar ao menu!", 20), 20};
+    Rectangle next = {centralizar_X("Avançar!", 20), posY + 80, MeasureText("Avançar!", 20), 20};
+    while(!WindowShouldClose()){
+        int key = GetCharPressed();
+    
+        while(key > 0){
+            if(key >= 32 && key <= 125 && contadorLetras < 255){
+                input[contadorLetras] = (char)key;
+                contadorLetras++;
+                input[contadorLetras] = '\0';
+            }
+            key = GetCharPressed();
+        }
+        if(IsKeyPressed(KEY_BACKSPACE)){
+            contadorLetras--;
+            if(contadorLetras < 0){
+                contadorLetras = 0;
+            }
+            input[contadorLetras] = '\0';
+        }
+
+
+        BeginDrawing();
+        ClearBackground(WHITE);
+        DrawText(label, centralizar_X(label, 20), posY, 20, BLACK);
+        DrawText(input, centralizar_X(input, 20), posY + 40, 20, BLACK);
+        
+        //Botão para avançar
+        button_animation(next, GOLD);
+        DrawText("Avançar!", next.x, next.y, 20, BLACK);
+
+
+        //Botão para voltar ao menu
+        button_animation(back, GOLD);
+        DrawText("Voltar ao menu!", back.x, back.y, 20, BLACK);  
+        
+        EndDrawing();
+
+        //Para avançar
+        if(IsKeyPressed(KEY_ENTER)){
+            return 0;
+        }
+
+        //Botão Avançar
+        if(CheckCollisionPointRec(GetMousePosition(), next)){
+            if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)){
+                return 0;
+            }
+        }
+
+        //Botão cancelar
+        if(CheckCollisionPointRec(GetMousePosition(), back)){
+            if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)){
+                return 1;
+            }
+        }
+    }
+    return 1;
 }

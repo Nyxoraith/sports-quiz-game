@@ -10,7 +10,6 @@
 
 typedef struct{
     char *enunciado, *alt1, *alt2, *alt3, *alt4, *dica;
-    char opcoes[4][50];
     char resposta;
     int nivelDif, valor;
 }Pergunta;
@@ -63,4 +62,6 @@ void tutorial();
 //Exibe a tela de encerramento do jogo após ganhar ou perder.
 void jogo_encerrado(int pressed, int valorSeguro, int valorGanho);
 
+//Le as strings digitadas e retorna para alocar memoria e copiar. 
+int ler_string(char *label, char *input, int posY);
 #endif

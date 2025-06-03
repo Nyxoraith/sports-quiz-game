@@ -13,12 +13,10 @@ int main(){
     }
 
     InitWindow(720, 520, "Jogo do Milhão");
-    tutorial();
+    //tutorial();
     menu(&perguntas, &tam);
-    
     CloseWindow();
 
-    salvar(perguntas, tam);
     liberar_memoria(perguntas, tam);
     perguntas = NULL;
     return 0;
