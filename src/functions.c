@@ -117,6 +117,13 @@ void menu(Pergunta **perguntas, int *tam) {
             }
         }
 
+        //Pesquisar
+        if(CheckCollisionPointRec(GetMousePosition(), play[3])){
+            if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)){
+                pesquisar(*perguntas, *tam);
+            }
+        }
+
         //Exit
         if(CheckCollisionPointRec(GetMousePosition(), play[6])){
             if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)){
@@ -348,27 +355,41 @@ void listar(Pergunta *pergunta, int tam){
 }
 
 int pesquisar(Pergunta *pergunta, int tam){
-    char search[200];
-    printf("Digite o enunciado da questão que deseja pesquisar: ");
-    fgets(search, 200, stdin);
-    search[strcspn(search, "\n")]='\0';
+    char search[255];
+    char label[64];
+    strcpy(label, "Digite o enunciado da questão que deseja pesquisar:");
+    if(ler_string(label, search, 200) == 1){
+        return -1;
+    }
 
     for(int i = 0; i < tam; i++){
         if(strcmp(pergunta[i].enunciado, search) == 0){
-            printf("Questão encontrada: ");
-            printf("%s\n", pergunta[i].enunciado);
-            printf("Alternativas \n");
-            printf("[A] %s\n", pergunta[i].alt1);
-            printf("[B] %s\n", pergunta[i].alt2);
-            printf("[C] %s\n", pergunta[i].alt3);
-            printf("[D] %s\n", pergunta[i].alt4);
-            printf("Alternativa correta: %c\n", pergunta[i].resposta);
-            printf("Nível de dificuldade: %d\n\n", pergunta[i].nivelDif);
+            BeginDrawing();
+            ClearBackground(WHITE);
+            
+            DrawText("Questão encontrada:", centralizar_X("Questão encontrada:", 20), 200, 20, BLACK);
+            DrawText(TextFormat("%s", pergunta[i].enunciado), centralizar_X(TextFormat("%s", pergunta[i].enunciado), 20), 220, 20, BLACK);
+            DrawText("Alternativas", centralizar_X("Alternativas", 20), 240, 20, BLACK);
+            DrawText(TextFormat("[A] %s", pergunta[i].alt1), centralizar_X(TextFormat("[A] %s", pergunta[i].alt1), 20), 260, 20, BLACK);
+            DrawText(TextFormat("[B] %s", pergunta[i].alt2), centralizar_X(TextFormat("[B] %s", pergunta[i].alt2), 20), 280, 20, BLACK);
+            DrawText(TextFormat("[C] %s", pergunta[i].alt3), centralizar_X(TextFormat("[C] %s", pergunta[i].alt3), 20), 300, 20, BLACK);
+            DrawText(TextFormat("[D] %s", pergunta[i].alt4), centralizar_X(TextFormat("[D] %s", pergunta[i].alt4), 20), 320, 20, BLACK);
+            DrawText(TextFormat("Alternativa correta: %c", pergunta[i].resposta), centralizar_X(TextFormat("Alternativa correta: %c", pergunta[i].resposta), 20), 340, 20, BLACK);
+            DrawText(TextFormat("Nível de dificuldade: %d", pergunta[i].nivelDif), centralizar_X(TextFormat("Nível de dificuldade: %d", pergunta[i].nivelDif), 20), 360, 20, BLACK);
+
+            EndDrawing();
+
+            WaitTime(4);
             return i;
         }
     }
+    BeginDrawing();
+    ClearBackground(WHITE);
 
-    printf("Questão não encontrada\n");
+    DrawText("Questão não encontrada", centralizar_X("Questão não encontrada", 20), 200, 20, BLACK);
+    EndDrawing();
+
+    WaitTime(2);
     return -1;
 }
 
