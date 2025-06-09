@@ -343,7 +343,7 @@ void listar(Pergunta *pergunta, int tam){
 
         //Botão para avançar apara proxima pergunta
         if(i + 1 < tam){
-            button_animation(next, RED);
+            button_animation(next, GOLD);
             DrawText("Proxima pergunta!", next.x, next.y, 20, BLACK);
 
             //Avançar
@@ -613,7 +613,7 @@ void jogar(Pergunta *pergunta, int total){
     char buffer[256];
 
     //Cria os 'botões' referentes a label respectiva.
-    Rectangle voltar = {530, 480, MeasureText("Voltar ao menu!", 20), 20};
+    Rectangle back = {530, 480, MeasureText("Voltar ao menu!", 20), 20};
     Rectangle alt_buttons[4];
     Rectangle dicas = {100, 270, MeasureText("Receber dica",20), 20};
 
@@ -717,8 +717,8 @@ void jogar(Pergunta *pergunta, int total){
         }
 
         //Botão para voltar ao menu
-        button_animation(voltar, GOLD);
-        DrawText("Voltar ao menu!", voltar.x, voltar.y, 20, BLACK);  
+        button_animation(back, GOLD);
+        DrawText("Voltar ao menu!", back.x, back.y, 20, BLACK);  
 
         EndDrawing();
 
@@ -762,8 +762,8 @@ void jogar(Pergunta *pergunta, int total){
         }
 
         //Botão voltar
-        if(CheckCollisionPointRec(GetMousePosition(), voltar)){
-            if(IsMouseButtonDown(MOUSE_LEFT_BUTTON)){
+        if(CheckCollisionPointRec(GetMousePosition(), back)){
+            if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)){
                 return;
             }
         }
