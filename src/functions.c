@@ -124,6 +124,13 @@ void menu(Pergunta **perguntas, int *tam) {
             }
         }
 
+        //Alterar
+        if(CheckCollisionPointRec(GetMousePosition(), play[4])){
+            if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)){
+                alterar(*perguntas, *tam);
+            }
+        }
+
         //Exit
         if(CheckCollisionPointRec(GetMousePosition(), play[6])){
             if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)){
@@ -309,7 +316,7 @@ void inserir(Pergunta **pergunta, int *tam){
 void listar(Pergunta *pergunta, int tam){
     char *teste;
     Rectangle back = {530, 480, MeasureText("Voltar ao menu!", 20), 20};
-    Rectangle next = {centralizar_X("Proxima pergunta!", 20), 400, MeasureText("Proxima pergunta!", 20), 20};
+    Rectangle next = {centralizar_X("Proxima pergunta!", 20), 450, MeasureText("Proxima pergunta!", 20), 20};
 
     for(int i = 0; i < tam;){
         BeginDrawing();
@@ -324,6 +331,8 @@ void listar(Pergunta *pergunta, int tam){
         DrawText(TextFormat("[D] %s", pergunta[i].alt4), centralizar_X(TextFormat("[D] %s", pergunta[i].alt4), 20), 320, 20, BLACK);
         DrawText(TextFormat("Alternativa correta: %c", pergunta[i].resposta), centralizar_X(TextFormat("Alternativa correta: %c", pergunta[i].resposta), 20), 340, 20, BLACK);
         DrawText(TextFormat("Nível de dificuldade: %d", pergunta[i].nivelDif), centralizar_X(TextFormat("Nível de dificuldade: %d", pergunta[i].nivelDif), 20), 360, 20, BLACK);
+        DrawText(TextFormat("Dica: %s", pergunta[i].dica), centralizar_X(TextFormat("Dica: %s", pergunta[i].dica), 20), 380, 20, BLACK);
+        DrawText(TextFormat("Valor: %d", pergunta[i].valor), centralizar_X(TextFormat("Valor: %d", pergunta[i].valor), 20), 400, 20, BLACK);
 
         //Botão para avançar apara proxima pergunta
         if(i + 1 < tam){
@@ -366,7 +375,7 @@ int pesquisar(Pergunta *pergunta, int tam){
         if(strcmp(pergunta[i].enunciado, search) == 0){
             BeginDrawing();
             ClearBackground(WHITE);
-            
+
             DrawText("Questão encontrada:", centralizar_X("Questão encontrada:", 20), 200, 20, BLACK);
             DrawText(TextFormat("%s", pergunta[i].enunciado), centralizar_X(TextFormat("%s", pergunta[i].enunciado), 20), 220, 20, BLACK);
             DrawText("Alternativas", centralizar_X("Alternativas", 20), 240, 20, BLACK);
@@ -376,10 +385,11 @@ int pesquisar(Pergunta *pergunta, int tam){
             DrawText(TextFormat("[D] %s", pergunta[i].alt4), centralizar_X(TextFormat("[D] %s", pergunta[i].alt4), 20), 320, 20, BLACK);
             DrawText(TextFormat("Alternativa correta: %c", pergunta[i].resposta), centralizar_X(TextFormat("Alternativa correta: %c", pergunta[i].resposta), 20), 340, 20, BLACK);
             DrawText(TextFormat("Nível de dificuldade: %d", pergunta[i].nivelDif), centralizar_X(TextFormat("Nível de dificuldade: %d", pergunta[i].nivelDif), 20), 360, 20, BLACK);
-
+            DrawText(TextFormat("Dica: %s", pergunta[i].dica), centralizar_X(TextFormat("Dica: %s", pergunta[i].dica), 20), 380, 20, BLACK);
+            DrawText(TextFormat("Valor: %d", pergunta[i].valor), centralizar_X(TextFormat("Valor: %d", pergunta[i].valor), 20), 400, 20, BLACK);
             EndDrawing();
 
-            WaitTime(4);
+            WaitTime(5);
             return i;
         }
     }
@@ -396,58 +406,118 @@ int pesquisar(Pergunta *pergunta, int tam){
 void alterar(Pergunta *pergunta, int tam){
     int indice;
     char buffer[200];
+    char label[64];
 
     indice = pesquisar(pergunta, tam);
     if(indice == -1){
         return;
     }
 
-    printf("Digite os novos dados!\n");
-    printf("Digite o enunciado: ");
-    fgets(buffer, 200, stdin);
-    buffer[strcspn(buffer, "\n")]='\0';
+    char enunciadoTmp[256];
+    char altsTmp[4][64];
+    char dicaTmp[256];
+    char respostaTmp;
+    int difTmp;
+    int valorTmp;
+    
+    char **alternativas[] = {&pergunta[indice].alt1, &pergunta[indice].alt2, &pergunta[indice].alt3, &pergunta[indice].alt4};
+
+    strcpy(enunciadoTmp, pergunta[indice].enunciado);
+    for(int i = 0; i < 4; i++){
+        strcpy(altsTmp[i], *alternativas[i]);
+    }
+    strcpy(dicaTmp, pergunta[indice].dica);
+    difTmp = pergunta[indice].nivelDif;
+    valorTmp = pergunta[indice].valor;
+    
+
+    strcpy(label, "Digite o novo enunciado");
+    if(ler_string(label, buffer, 200) == 1){
+        return;
+    }
+
     pergunta[indice].enunciado = realloc(pergunta[indice].enunciado, strlen(buffer)+1);
     if(pergunta[indice].enunciado == NULL){
         perror("Erro de alocação: ");
         exit(1);
     }
     strcpy(pergunta[indice].enunciado, buffer);
-
-    char **alternativas[] = {&pergunta[indice].alt1, &pergunta[indice].alt2, &pergunta[indice].alt3, &pergunta[indice].alt4};
+    
     for(int i = 0; i < 4; i++){
-        printf("Digite a alternativa %d: ", i+1);
-        fgets(buffer, 200, stdin);
-        buffer[strcspn(buffer, "\n")]='\0';
+        sprintf(label, "Digite a alternativa %c: ", 'A' + i);
+        if(ler_string(label, buffer, 200) == 1){
+            for(int j = 0; j < i; j++){
+                strcpy(*alternativas[j], altsTmp[j]);
+                printf("%s - %s\n", altsTmp[j], *alternativas[j]);
+            }
+            strcpy(pergunta[indice].enunciado, enunciadoTmp);
+            return;
+        }
         *alternativas[i] = realloc(*alternativas[i], strlen(buffer)+1);
         if(*alternativas[i] == NULL){
             perror("Erro de alocação: ");
             exit(1);
         }
         strcpy(*alternativas[i], buffer);
-
     }
-
-    printf("Digite a dica da pergunta: ");
-    fgets(buffer, 200, stdin);
-    buffer[strcspn(buffer, "\n")]='\0';
-    pergunta[indice].dica = malloc(strlen(buffer)+1);
+    
+    strcpy(label, "Digite a dica da pergunta:");
+    if(ler_string(label, buffer, 200) == 1){
+        for(int i = 0; i < 4; i++){
+            strcpy(*alternativas[i], altsTmp[i]);
+        }
+        strcpy(pergunta[indice].enunciado, enunciadoTmp);
+        return;
+    }
+    
+    pergunta[indice].dica = realloc(pergunta[indice].dica, strlen(buffer)+1);
     if(pergunta[indice].dica == NULL){
         perror("Erro de alocação: ");
         exit(1);
     }
     strcpy(pergunta[indice].dica, buffer);
+    
+    strcpy(label,"Digite a alternativa correta (A)(B)(C)(D):");
+    if(ler_string(label, buffer, 200) == 1){
+        for(int i = 0; i < 4; i++){
+            strcpy(*alternativas[i], altsTmp[i]);
+        }
+        strcpy(pergunta[indice].enunciado, enunciadoTmp);
+        strcpy(pergunta[indice].dica, dicaTmp);
+        return;
+    }
+    pergunta[indice].resposta = buffer[0];
 
-    printf("Digite a alternativa correta (A)(B)(C)(D): ");
-    scanf(" %c", &pergunta[indice].resposta);
+    strcpy(label, "Digite a dificuldade:");
+    if(ler_string(label, buffer, 200) == 1){
+        for(int i = 0; i < 4; i++){
+            strcpy(*alternativas[i], altsTmp[i]);
+        }
+        strcpy(pergunta[indice].enunciado, enunciadoTmp);
+        strcpy(pergunta[indice].dica, dicaTmp);
+        pergunta[indice].resposta = respostaTmp;
+        return;
+    }
+    pergunta[indice].nivelDif = atoi(buffer);
+    
+    strcpy(label, "Digite qual o valor da pergunta:");
+    if(ler_string(label, buffer, 200) == 1){
+        for(int i = 0; i < 4; i++){
+            strcpy(*alternativas[i], altsTmp[i]);
+        }
+        strcpy(pergunta[indice].enunciado, enunciadoTmp);
+        strcpy(pergunta[indice].dica, dicaTmp);
+        pergunta[indice].resposta = respostaTmp;
+        pergunta[indice].nivelDif = difTmp;
+        return;
+    }
+    pergunta[indice].valor = atoi(buffer);
 
-    printf("Digite a dificuldade: ");
-    scanf("%d", &pergunta[indice].nivelDif);
-    getchar();
-
-    printf("Digite qual o valor da pergunta: ");
-    scanf("%d", &pergunta[indice].valor);
-    getchar();
-    printf("\nDados inseridos com sucesso!\n");
+    BeginDrawing();
+    ClearBackground(WHITE);
+    DrawText("Dados inseridos com sucesso!", centralizar_X("Dados inseridos com sucesso!", 20), 200, 20, BLACK);
+    EndDrawing();
+    WaitTime(3);
 }
 
 void excluir(Pergunta **pergunta, int *tam){
