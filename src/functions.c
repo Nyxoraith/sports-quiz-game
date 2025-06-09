@@ -130,6 +130,13 @@ void menu(Pergunta **perguntas, int *tam) {
                 alterar(*perguntas, *tam);
             }
         }
+              
+        //Excluir
+        if(CheckCollisionPointRec(GetMousePosition(), play[5])){
+            if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)){
+                excluir(perguntas, tam);
+            }
+        }
 
         //Exit
         if(CheckCollisionPointRec(GetMousePosition(), play[6])){
@@ -551,7 +558,12 @@ void excluir(Pergunta **pergunta, int *tam){
         free(*pergunta);
         *pergunta = NULL;
     }
-    printf("Pergunta excluida com sucesso!");
+    
+    BeginDrawing();
+    ClearBackground(WHITE);
+    DrawText("Pergunta excluida com sucesso!", centralizar_X("Pergunta excluida com sucesso!", 20), 200, 20, BLACK);
+    EndDrawing();
+    WaitTime(3);
 }
 
 void salvar(Pergunta *pergunta, int tam){
