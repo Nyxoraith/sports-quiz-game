@@ -158,7 +158,7 @@ void menu(Pergunta **perguntas, int *tam) {
 
 void inserir(Pergunta **pergunta, int *tam){
     //Variaveis temporarias para exibição
-    char buffer[255];
+    char buffer[256];
     char label[64];
     char enunciadoTmp[256];
     char altsTmp[4][64];
@@ -321,7 +321,6 @@ void inserir(Pergunta **pergunta, int *tam){
 }
 
 void listar(Pergunta *pergunta, int tam){
-    char *teste;
     Rectangle back = {530, 480, MeasureText("Voltar ao menu!", 20), 20};
     Rectangle next = {centralizar_X("Proxima pergunta!", 20), 450, MeasureText("Proxima pergunta!", 20), 20};
 
@@ -371,7 +370,7 @@ void listar(Pergunta *pergunta, int tam){
 }
 
 int pesquisar(Pergunta *pergunta, int tam){
-    char search[255];
+    char search[256];
     char label[64];
     strcpy(label, "Digite o enunciado da questão que deseja pesquisar:");
     if(ler_string(label, search, 200) == 1){
@@ -412,20 +411,19 @@ int pesquisar(Pergunta *pergunta, int tam){
 
 void alterar(Pergunta *pergunta, int tam){
     int indice;
-    char buffer[200];
+    int difTmp;
+    int valorTmp;
+    char buffer[256];
     char label[64];
+    char enunciadoTmp[256];
+    char altsTmp[4][64];
+    char dicaTmp[256];
+    char respostaTmp;
 
     indice = pesquisar(pergunta, tam);
     if(indice == -1){
         return;
     }
-
-    char enunciadoTmp[256];
-    char altsTmp[4][64];
-    char dicaTmp[256];
-    char respostaTmp;
-    int difTmp;
-    int valorTmp;
     
     char **alternativas[] = {&pergunta[indice].alt1, &pergunta[indice].alt2, &pergunta[indice].alt3, &pergunta[indice].alt4};
 
@@ -768,7 +766,7 @@ void jogar(Pergunta *pergunta, int total){
             }
         }
     }
-}//void jogar
+}
 
 void button_animation(Rectangle button, Color color){
     DrawRectangleRec(button, WHITE);
@@ -785,6 +783,8 @@ int centralizar_X(const char *name_button, int fontSize){
 }
 
 void tutorial(){
+    int contadorLetra = 0;
+    int linhaAtual = 0;
     const char *tutorial[] = {
         "Vai começar o jogo do Milhão!",
         "Responda as pergunta escolhendo alguma das alternativas",
@@ -796,18 +796,37 @@ void tutorial(){
     while(!WindowShouldClose()){
         BeginDrawing();
         ClearBackground(WHITE);
-        for(int i = 0; i < 5; i++){
-            DrawText(tutorial[i], centralizar_X(tutorial[i], 20), 150 + i * 50, 20, BLACK);
-        }  
+        for(int i = 0; i < linhaAtual; i++){
+            DrawText(tutorial[i], centralizar_X(tutorial[i], 20), 180 + i * 50, 20, BLACK);
+        }
+        
+        if(linhaAtual < 5){
+            int comprimento = contadorLetra / 2;
+            int tam = strlen(tutorial[linhaAtual]);
+            if(comprimento > tam){
+                comprimento = tam;
+            }
+
+            DrawText(TextSubtext(tutorial[linhaAtual], 0, comprimento), centralizar_X(tutorial[linhaAtual], 20), 180 + linhaAtual * 50, 20, BLACK);
+
+            if(comprimento >= tam){
+                linhaAtual++;
+                contadorLetra = 0;
+            }else{
+                contadorLetra++;
+            }
+
+        }
+
         EndDrawing();
-        if(GetTime() - tempoEsperando >= 7){
+        if(GetTime() - tempoEsperando >= 10){
             return;
         }
     }
 }
 
 void jogo_encerrado(int respostaSelecionada, int valorSeguro, int valorGanho){
-    char buffer[255];
+    char buffer[256];
     while(!WindowShouldClose()){
         BeginDrawing();
         ClearBackground(WHITE);

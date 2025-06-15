@@ -12,8 +12,9 @@ int main(){
         return 1;
     }
 
-    InitWindow(720, 520, "Jogo do Milhão");
-    //tutorial();
+    InitWindow(800, 600, "Jogo do Milhão");
+    SetTargetFPS(60);
+    tutorial();
     menu(&perguntas, &tam);
     CloseWindow();
 

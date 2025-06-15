@@ -21,3 +21,6 @@ $(TARGET): $(OBJ)
 # Compila cada arquivo fonte em um objeto .c -> .o
 $(SRC_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) -c $< -o $@ $(CFLAGS)
+
+run:
+	.\game.exe
