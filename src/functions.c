@@ -78,7 +78,7 @@ void menu(Pergunta **perguntas, int *tam) {
 
     for(int i = 0; i < 8; i++){
         play[i].x = centralizar_X(nameButtons[i], 20);
-        play[i].y = 280 + i * 30;
+        play[i].y = 330 + i * 30;
         play[i].width = MeasureText(nameButtons[i], 20);
         play[i].height = 20;
     }
@@ -87,8 +87,8 @@ void menu(Pergunta **perguntas, int *tam) {
         BeginDrawing();
         ClearBackground(WHITE);
 
-        DrawTexture(logo_show, (GetScreenWidth() - logo_show.width)/2, 10, WHITE);
-        DrawText("===== MENU =====", centralizar_X("===== MENU =====", 20), 230, 20, BLACK);
+        DrawTexture(logo_show, (GetScreenWidth() - logo_show.width)/2, 25, WHITE);
+        DrawText("===== MENU =====", centralizar_X("===== MENU =====", 20), 280, 20, BLACK);
         for(int i = 0; i < 8; i++){
             button_animation(play[i], YELLOW);
             DrawText(nameButtons[i], play[i].x, play[i].y, 20, BLACK);  
@@ -611,9 +611,9 @@ void jogar(Pergunta *pergunta, int total){
     char buffer[256];
 
     //Cria os 'botões' referentes a label respectiva.
-    Rectangle back = {530, 480, MeasureText("Voltar ao menu!", 20), 20};
+    Rectangle back = {550, 530, MeasureText("Voltar ao menu!", 20), 20};
     Rectangle alt_buttons[4];
-    Rectangle dicas = {100, 270, MeasureText("Receber dica",20), 20};
+    Rectangle dicas = {100, 320, MeasureText("Receber dica",20), 20};
 
     while(!WindowShouldClose()){
     
@@ -621,7 +621,7 @@ void jogar(Pergunta *pergunta, int total){
         for(int i = 0; i < 4; i++){
             sprintf(buffer, "%c) %s", 'A' + i, alternativas[i]);
             alt_buttons[i].x = centralizar_X(alternativas[i], 20);
-            alt_buttons[i].y = 90 + i * 30;
+            alt_buttons[i].y = 130 + i * 30;
             alt_buttons[i].width = MeasureText(buffer, 20);
             alt_buttons[i].height = 20;
         }
@@ -630,7 +630,7 @@ void jogar(Pergunta *pergunta, int total){
         ClearBackground(WHITE);
         
         //Enunciado
-        DrawText(pergunta[perguntaAtual].enunciado, centralizar_X(pergunta[perguntaAtual].enunciado, 20), 50, 20, BLACK);
+        DrawText(pergunta[perguntaAtual].enunciado, centralizar_X(pergunta[perguntaAtual].enunciado, 20), 65, 20, BLACK);
 
         //Questoes
         for(int i = 0; i < 4; i++){
@@ -642,7 +642,7 @@ void jogar(Pergunta *pergunta, int total){
             }
             
             sprintf(buffer, "%c) %s", 'A' + i, alternativas[i]);
-            DrawText(buffer, centralizar_X(alternativas[i], 20), 90 + i * 30, 20, BLACK);
+            DrawText(buffer, centralizar_X(alternativas[i], 20), alt_buttons[i].y, 20, BLACK);
 
             //Verifica se a alternativa escolhida pelo usuario está correta ou não.
             if(CheckCollisionPointRec(GetMousePosition(), alt_buttons[i])){
@@ -658,26 +658,26 @@ void jogar(Pergunta *pergunta, int total){
 
         //Exibe a mensage se o usuario respondeu a pergunta atual corretamente ou não, se sim atualiza o valor ganho.
         if (respostaSelecionada == 1){
-            DrawText("Resposta correta!", centralizar_X("Reposta correta!", 20), 225, 20, GREEN);
+            DrawText("Resposta correta!", centralizar_X("Reposta correta!", 20), 270, 20, GREEN);
             dinheiroGanho = pergunta[perguntaAtual].valor;
         }else if(respostaSelecionada == 2){
-            DrawText("Resposta Incorreta!", centralizar_X("Reposta Incorreta!", 20), 225, 20, RED);
+            DrawText("Resposta Incorreta!", centralizar_X("Reposta Incorreta!", 20), 270, 20, RED);
         }
 
         //Mostra o valor que a pergunta vale
-        DrawText("Valendo: ", 450, 270, 20, BLACK);
+        DrawText("Valendo: ", 450, 320, 20, BLACK);
         sprintf(buffer, "R$ %d",pergunta[perguntaAtual].valor);
-        DrawText(buffer, 600, 270, 20, BLACK);
+        DrawText(buffer, 600, 320, 20, BLACK);
 
         //Mostra o valor que ganha se Acertar
-        DrawText("Valor Ganho: ", 450, 300, 20, BLACK);
+        DrawText("Valor Ganho: ", 450, 350, 20, BLACK);
         sprintf(buffer, "R$ %d", dinheiroGanho);
-        DrawText(buffer, 600, 300, 20, BLACK);
+        DrawText(buffer, 600, 350, 20, GREEN);
 
         //Mostra o valor que ganha se errar
-        DrawText("Se errar: ", 450, 330, 20, BLACK);
+        DrawText("Se errar: ", 450, 380, 20, BLACK);
         sprintf(buffer, "R$ %d", valorSeguro);
-        DrawText(buffer, 600, 330, 20, BLACK);
+        DrawText(buffer, 600, 380, 20, RED);
 
         //Faz a validação das dicas disponiveis
         if(dicasDisponiveis > 0 && strlen(pergunta[perguntaAtual].dica) > 0){
@@ -687,30 +687,30 @@ void jogar(Pergunta *pergunta, int total){
             }else{
                 button_animation(dicas, RED);
             }
-            DrawText("Receber dica", 100, 270, 20, BLACK);
-            DrawText("Dicas Disponiveis:", 100, 300, 20, BLACK); 
-            DrawText(buffer, 280, 300, 20, BLACK);
+            DrawText("Receber dica", 100, dicas.y, 20, BLACK);
+            DrawText("Dicas Disponiveis:", 100, 350, 20, BLACK); 
+            DrawText(buffer, 280, 350, 20, BLACK);
             if(CheckCollisionPointRec(GetMousePosition(), dicas)){
                 if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
                     if(recebeuDicaNaVez == 0){
                         recebeuDicaNaVez++;
                         dicasDisponiveis--;
-                        DrawText(buffer, 280, 300, 20, BLACK);
+                        DrawText(buffer, 280, 350, 20, BLACK);
                     }
                     else{
                         dicaUsada = 1;
                     }
                 }   
             }
-        }else{
-            DrawText("Você não tem mais dicas disponíveis ou esta pergunta não tem dica.", centralizar_X("Você não tem mais dicas disponíveis ou esta pergunta não tem dica.", 20), 430, 20, BLACK);
+        }else if((dicasDisponiveis == 0 || strlen(pergunta[perguntaAtual].dica) == 0) && recebeuDicaNaVez == 0){
+            DrawText("Você não tem mais dicas disponíveis ou esta pergunta não tem dica.", centralizar_X("Você não tem mais dicas disponíveis ou esta pergunta não tem dica.", 20), 450, 20, RED);
         }
 
         //Exibe o texto que já foi utilizado dica na pergunta
         if (recebeuDicaNaVez == 1) {
-            DrawText(pergunta[perguntaAtual].dica, centralizar_X(pergunta[perguntaAtual].dica, 20), 380, 20, BLACK);
+            DrawText(pergunta[perguntaAtual].dica, centralizar_X(pergunta[perguntaAtual].dica, 20), 480, 20, GREEN);
            if (dicaUsada == 1) {
-                DrawText("Você já usou a dica para esta pergunta.", centralizar_X("Você já usou a dica para esta pergunta.", 20), 430, 20, BLACK);
+                DrawText("Você já usou a dica para esta pergunta.", centralizar_X("Você já usou a dica para esta pergunta.", 20), 430, 20, RED);
             }
         }
 
