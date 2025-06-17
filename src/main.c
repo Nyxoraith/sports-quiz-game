@@ -17,9 +17,9 @@ int main(){
 
     SetTargetFPS(60);
 
-    tutorial();
+    //tutorial();
     menu(&perguntas, &tam);
-    
+
     CloseAudioDevice();
     CloseWindow();
 

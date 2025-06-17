@@ -599,6 +599,7 @@ void jogar(Pergunta *pergunta, int total){
     int marco2 = 10; // pergunta 10
     int gameFinal = 0;
     int dicaUsada = 0;
+    int muteControl = 0;
     int valorSeguro = 0;
     int perguntaAtual = 0;
     int dinheiroGanho = 0;
@@ -617,9 +618,15 @@ void jogar(Pergunta *pergunta, int total){
     Rectangle dicas = {100, 320, MeasureText("Receber dica",20), 20};
     Rectangle container_Enum = {50, 50, 700, 50};
     Rectangle container_valores = {430, 310, 305, 100};
+    Rectangle bt_audio = {15, 15, 32, 32};
+
+    Texture2D mute = LoadTexture("resources/mute.png");
+    Texture2D unmute = LoadTexture("resources/unmute.png");
+
     Sound continue_sound = LoadSound("resources/continue.mp3");
     Sound fail_sound = LoadSound("resources/fail.mp3");
-
+    
+    SetMasterVolume(1);
     while(!WindowShouldClose()){
     
         char *alternativas[] = {pergunta[perguntaAtual].alt1, pergunta[perguntaAtual].alt2, pergunta[perguntaAtual].alt3, pergunta[perguntaAtual].alt4};
@@ -633,6 +640,14 @@ void jogar(Pergunta *pergunta, int total){
 
         BeginDrawing();
         ClearBackground(WHITE);
+
+        if(muteControl == 0){
+            DrawTexture(unmute, bt_audio.x, bt_audio.y, WHITE);
+           
+        }else{
+            DrawTexture(mute, bt_audio.x, bt_audio.y, WHITE);
+        }
+
         DrawRectangleLinesEx(container_Enum, 3, MAROON);
         DrawRectangleLinesEx(container_valores, 3, MAROON);
         //Enunciado
@@ -770,6 +785,19 @@ void jogar(Pergunta *pergunta, int total){
                 if(perguntaAtual >= total){
                     jogo_encerrado(respostaSelecionada, valorSeguro, dinheiroGanho);
                     break;
+                }
+            }
+        }
+
+         //Mutar
+        if(CheckCollisionPointRec(GetMousePosition(), bt_audio)){
+            if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
+                if(muteControl == 0){
+                    SetMasterVolume(0);
+                    muteControl = 1;
+                }else{
+                    SetMasterVolume(1);
+                    muteControl = 0;
                 }
             }
         }
