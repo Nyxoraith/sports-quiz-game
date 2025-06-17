@@ -1,7 +1,7 @@
 # Variavel de configuração do compilador e linker
 CC = gcc
 CFLAGS = -I C:/raylib/raylib/include   # Flags para compilar (.c -> .o)
-LDFLAGS = -L C:/raylib/raylib/lib -lraylib -lwinmm -lgdi32 -lopengl32  # Flags para linkar (.o -> .exe)
+LDFLAGS = -L C:/raylib/raylib/lib -lraylib -lwinmm -lgdi32 -lopengl32  # Flags para linkar (.o -> .exe) Adicionar a flag -mwindows quando for compilar projeto final
 
 # Diretorios
 SRC_DIR = src

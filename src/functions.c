@@ -625,6 +625,7 @@ void jogar(Pergunta *pergunta, int total){
 
     Sound continue_sound = LoadSound("resources/continue.mp3");
     Sound fail_sound = LoadSound("resources/fail.mp3");
+    Sound mute_sound = LoadSound("resources/mute_sound.mp3");
     
     SetMasterVolume(1);
     while(!WindowShouldClose()){
@@ -643,7 +644,6 @@ void jogar(Pergunta *pergunta, int total){
 
         if(muteControl == 0){
             DrawTexture(unmute, bt_audio.x, bt_audio.y, WHITE);
-           
         }else{
             DrawTexture(mute, bt_audio.x, bt_audio.y, WHITE);
         }
@@ -798,6 +798,7 @@ void jogar(Pergunta *pergunta, int total){
                 }else{
                     SetMasterVolume(1);
                     muteControl = 0;
+                    PlaySound(mute_sound);
                 }
             }
         }
@@ -976,3 +977,4 @@ int ler_string(char *label, char *input, int posY){
     }
     return 1;
 }
+
