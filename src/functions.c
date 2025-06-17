@@ -594,6 +594,7 @@ void jogar(Pergunta *pergunta, int total){
     //Declaração das variaveis/flags de controle
     float delay = 1.5; //Delay entre perguntas
 
+    int play = 1;
     int marco1 = 5; // pergunta 5
     int marco2 = 10; // pergunta 10
     int gameFinal = 0;
@@ -614,6 +615,10 @@ void jogar(Pergunta *pergunta, int total){
     Rectangle back = {550, 530, MeasureText("Voltar ao menu!", 20), 20};
     Rectangle alt_buttons[4];
     Rectangle dicas = {100, 320, MeasureText("Receber dica",20), 20};
+    Rectangle container_Enum = {50, 50, 700, 50};
+    Rectangle container_valores = {430, 310, 305, 100};
+    Sound continue_sound = LoadSound("resources/continue.mp3");
+    Sound fail_sound = LoadSound("resources/fail.mp3");
 
     while(!WindowShouldClose()){
     
@@ -628,7 +633,8 @@ void jogar(Pergunta *pergunta, int total){
 
         BeginDrawing();
         ClearBackground(WHITE);
-        
+        DrawRectangleLinesEx(container_Enum, 3, MAROON);
+        DrawRectangleLinesEx(container_valores, 3, MAROON);
         //Enunciado
         DrawText(pergunta[perguntaAtual].enunciado, centralizar_X(pergunta[perguntaAtual].enunciado, 20), 65, 20, BLACK);
 
@@ -658,10 +664,18 @@ void jogar(Pergunta *pergunta, int total){
 
         //Exibe a mensage se o usuario respondeu a pergunta atual corretamente ou não, se sim atualiza o valor ganho.
         if (respostaSelecionada == 1){
-            DrawText("Resposta correta!", centralizar_X("Reposta correta!", 20), 270, 20, GREEN);
+            DrawText("Resposta correta!", centralizar_X("Reposta correta!", 20), 260, 20, GREEN);
             dinheiroGanho = pergunta[perguntaAtual].valor;
+            if(play == 1){
+                PlaySound(continue_sound);   
+                play = 0;
+            }
         }else if(respostaSelecionada == 2){
-            DrawText("Resposta Incorreta!", centralizar_X("Reposta Incorreta!", 20), 270, 20, RED);
+            DrawText("Resposta Incorreta!", centralizar_X("Reposta Incorreta!", 20), 260, 20, RED);
+            if(play == 1){
+                PlaySound(fail_sound);   
+                play = 0;
+            }
         }
 
         //Mostra o valor que a pergunta vale
@@ -749,6 +763,7 @@ void jogar(Pergunta *pergunta, int total){
                 respostaSelecionada = 0;
                 recebeuDicaNaVez = 0;
                 dicaUsada = 0;
+                play = 1;
                 perguntaAtual++;
 
                 //Se respondeu todas as perguntas corretas
@@ -762,6 +777,8 @@ void jogar(Pergunta *pergunta, int total){
         //Botão voltar
         if(CheckCollisionPointRec(GetMousePosition(), back)){
             if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)){
+                UnloadSound(fail_sound);
+                UnloadSound(continue_sound);
                 return;
             }
         }
@@ -783,6 +800,7 @@ int centralizar_X(const char *name_button, int fontSize){
 }
 
 void tutorial(){
+    int play = 1;
     int contadorLetra = 0;
     int linhaAtual = 0;
     const char *tutorial[] = {
@@ -793,9 +811,16 @@ void tutorial(){
         "Para usar uma dica, clique no botão 'Receber Dica'."
     };
     int tempoEsperando = GetTime();
+    Sound intro = LoadSound("resources/intro.mp3");
     while(!WindowShouldClose()){
         BeginDrawing();
         ClearBackground(WHITE);
+
+        if(play == 1){
+            PlaySound(intro);   
+            play = 0;
+        }
+
         for(int i = 0; i < linhaAtual; i++){
             DrawText(tutorial[i], centralizar_X(tutorial[i], 20), 180 + i * 50, 20, BLACK);
         }
@@ -820,6 +845,7 @@ void tutorial(){
 
         EndDrawing();
         if(GetTime() - tempoEsperando >= 10){
+            UnloadSound(intro);
             return;
         }
     }
@@ -827,27 +853,34 @@ void tutorial(){
 
 void jogo_encerrado(int respostaSelecionada, int valorSeguro, int valorGanho){
     char buffer[256];
+    Sound win_sound = LoadSound("resources/win.mp3");
+    int play = 1;
     while(!WindowShouldClose()){
         BeginDrawing();
         ClearBackground(WHITE);
 
         if(respostaSelecionada == 0){
+            if(play == 1){
+                PlaySound(win_sound);   
+                play = 0;
+            }
             sprintf(buffer, "Você ganhou: R$ %d Reais!", valorGanho);
-            DrawText("Parabéns! Você respondeu todas as perguntas!", centralizar_X("Parabéns! Você respondeu todas as perguntas!", 20), 200, 20, BLACK);
+            DrawText("Parabéns! Você respondeu todas as perguntas!", centralizar_X("Parabéns! Você respondeu todas as perguntas!", 20), 200, 20, GREEN);
             DrawText(buffer, centralizar_X(buffer, 20), 230, 20, BLACK);
             DrawText("Clique para voltar ao menu", centralizar_X("Clique para voltar ao menu", 20), 430, 20, BLACK);
         }else if(respostaSelecionada == 2){
             sprintf(buffer, "Você ganhou: R$ %d Reais!", valorSeguro);
-            DrawText("Fim de Jogo. Tente Novamente!", centralizar_X("Fim de Joogo. Tente Novamente!", 20), 200, 20, BLACK);
+            DrawText("Fim de Jogo. Tente Novamente!", centralizar_X("Fim de Joogo. Tente Novamente!", 20), 200, 20, RED);
             DrawText(buffer, centralizar_X(buffer, 20), 230, 20, BLACK);
             DrawText("Clique para voltar ao menu", centralizar_X("Clique para voltar ao menu", 20), 430, 20, BLACK);
+            
         }
-
         EndDrawing();
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
             return;
         }
     }
+    UnloadSound(win_sound);
 }
 
 int ler_string(char *label, char *input, int posY){

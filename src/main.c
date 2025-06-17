@@ -13,9 +13,14 @@ int main(){
     }
 
     InitWindow(800, 600, "Jogo do Milhão");
+    InitAudioDevice();
+
     SetTargetFPS(60);
+
     tutorial();
     menu(&perguntas, &tam);
+    
+    CloseAudioDevice();
     CloseWindow();
 
     liberar_memoria(perguntas, tam);
