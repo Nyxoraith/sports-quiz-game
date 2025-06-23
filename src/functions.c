@@ -412,7 +412,6 @@ int pesquisar(Pergunta *pergunta, int tam){
 void alterar(Pergunta *pergunta, int tam){
     int indice;
     int difTmp;
-    int valorTmp;
     char buffer[256];
     char label[64];
     char enunciadoTmp[256];
@@ -433,7 +432,7 @@ void alterar(Pergunta *pergunta, int tam){
     }
     strcpy(dicaTmp, pergunta[indice].dica);
     difTmp = pergunta[indice].nivelDif;
-    valorTmp = pergunta[indice].valor;
+    respostaTmp = pergunta[indice].resposta;
     
 
     strcpy(label, "Digite o novo enunciado");
@@ -597,7 +596,6 @@ void jogar(Pergunta *pergunta, int total){
     int play = 1;
     int marco1 = 5; // pergunta 5
     int marco2 = 10; // pergunta 10
-    int gameFinal = 0;
     int dicaUsada = 0;
     int muteControl = 0;
     int valorSeguro = 0;
@@ -985,8 +983,6 @@ void quebrar_linha(const char *enunciado, Rectangle container, int fontSize, Col
         char line[1024];
         int lineLength = 0;
         int lineWidth = 0;
-
-        const char *lineStart = ptr;
 
         while (*ptr != '\0' && *ptr != '\n'){
             const char *wordStart = ptr;

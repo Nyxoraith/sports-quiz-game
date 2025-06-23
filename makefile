@@ -1,26 +1,36 @@
-# Variavel de configuração do compilador e linker
-CC = gcc
-CFLAGS = -I C:/raylib/raylib/include   # Flags para compilar (.c -> .o)
-LDFLAGS = -L C:/raylib/raylib/lib -lraylib -lwinmm -lgdi32 -lopengl32  # Flags para linkar (.o -> .exe) Adicionar a flag -mwindows quando for compilar projeto final
+# Verifica o sistema operacional
+ifdef OS
+  OS := $(strip $(OS))
+else
+  OS := $(strip $(shell uname))
+endif
 
-# Diretorios
-SRC_DIR = src
+BINNAME = game
 
-# Variaveis para listar arquivos fontes e obj
-SRC = $(wildcard $(SRC_DIR)/*.c)
-OBJ = $(SRC:.c=.o)
-TARGET = game.exe
+ifeq ($(OS),Windows_NT)
+	INCLUDE = -I C:/raylib/raylib/include -L C:/raylib/raylib/lib
+	EXTRA_FLAGS = -Wall -Werror -Wextra -std=c99 -Wno-missing-braces -lraylib -lm -lopengl32 -lgdi32 -lwinmm -mwindows
+	BIN = $(BINNAME).exe
+else
+	INCLUDE=-I./include/ -L./lib
+	EXTRA_FLAGS = -Wall -Werror -Wextra -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
+	BIN =./$(BINNAME)
+endif
 
-# Regra padrão
-all: $(TARGET)
+SRC=./src/*.c
 
-# Linkagem do programa .o -> .exe
-$(TARGET): $(OBJ)
-	$(CC) $(OBJ) -o $@ $(LDFLAGS)
-
-# Compila cada arquivo fonte em um objeto .c -> .o
-$(SRC_DIR)/%.o: $(SRC_DIR)/%.c
-	$(CC) -c $< -o $@ $(CFLAGS)
+all:
+	gcc $(SRC) -g -lm $(EXTRA_FLAGS) $(INCLUDE) -o $(BIN)
 
 run:
-	.\game.exe
+	$(BIN)
+
+debug:
+	gdb $(BIN)
+
+clean:
+	rm ./game.exe ./src/*.o
+
+
+valgrind:
+	valgrind --tool=memcheck --leak-check=full --track-origins=yes --show-leak-kinds=all --show-reachable=yes ./$(BIN)
