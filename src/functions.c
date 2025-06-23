@@ -616,8 +616,7 @@ void jogar(Pergunta *pergunta, int total){
     Rectangle back = {550, 530, MeasureText("Voltar ao menu!", 20), 20};
     Rectangle alt_buttons[4];
     Rectangle dicas = {100, 320, MeasureText("Receber dica",20), 20};
-    Rectangle container_Enum = {50, 50, 700, 50};
-    Rectangle container_valores = {430, 310, 305, 100};
+    Rectangle container_Enum = {50, 50, 700, 60};
     Rectangle bt_audio = {15, 15, 32, 32};
 
     Texture2D mute = LoadTexture("resources/mute.png");
@@ -648,10 +647,8 @@ void jogar(Pergunta *pergunta, int total){
             DrawTexture(mute, bt_audio.x, bt_audio.y, WHITE);
         }
 
-        DrawRectangleLinesEx(container_Enum, 3, MAROON);
-        DrawRectangleLinesEx(container_valores, 3, MAROON);
         //Enunciado
-        DrawText(pergunta[perguntaAtual].enunciado, centralizar_X(pergunta[perguntaAtual].enunciado, 20), 65, 20, BLACK);
+        quebrar_linha(pergunta[perguntaAtual].enunciado, container_Enum, 20, BLACK);
 
         //Questoes
         for(int i = 0; i < 4; i++){
@@ -978,3 +975,63 @@ int ler_string(char *label, char *input, int posY){
     return 1;
 }
 
+void quebrar_linha(const char *enunciado, Rectangle container, int fontSize, Color color){
+    int lineHeight = fontSize + 5;
+    float posY = container.y + 5;
+
+    const char *ptr = enunciado;
+
+    while (*ptr != '\0'){
+        char line[1024];
+        int lineLength = 0;
+        int lineWidth = 0;
+
+        const char *lineStart = ptr;
+
+        while (*ptr != '\0' && *ptr != '\n'){
+            const char *wordStart = ptr;
+
+            char word[256];
+            int wordLength = 0;
+            while (*ptr != '\0' && *ptr != ' ' && *ptr != '\n'){
+                word[wordLength++] = *ptr;
+                ptr++;
+            }
+            word[wordLength] = '\0';
+
+            int wordSize = MeasureText(word, fontSize);
+
+            if ((lineWidth + wordSize) > container.width){
+                ptr = wordStart;
+                break;
+            }
+
+            memcpy(&line[lineLength], word, wordLength);
+            lineLength += wordLength;
+
+            lineWidth += wordSize;
+
+            if (*ptr == ' '){
+                line[lineLength++] = ' ';
+                lineWidth += MeasureText(" ", fontSize);
+                ptr++;
+            }
+        }
+
+        line[lineLength] = '\0';
+
+        if (*ptr == '\n'){
+            ptr++;
+        }
+
+        int posX = container.x + (container.width - lineWidth) / 2;
+
+        DrawText(line, posX, posY, fontSize, color);
+
+        posY += lineHeight;
+
+        if((posY + lineHeight) > (container.y + container.height)){
+            break;
+        }
+    }
+}

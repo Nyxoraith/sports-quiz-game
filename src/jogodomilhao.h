@@ -64,4 +64,6 @@ void jogo_encerrado(int pressed, int valorSeguro, int valorGanho);
 
 //Le as strings digitadas e retorna para alocar memoria e copiar. 
 int ler_string(char *label, char *input, int posY);
+
+void quebrar_linha(const char *text, Rectangle container, int fontSize, Color color);
 #endif
