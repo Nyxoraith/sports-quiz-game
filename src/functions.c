@@ -323,22 +323,23 @@ void inserir(Pergunta **pergunta, int *tam){
 void listar(Pergunta *pergunta, int tam){
     Rectangle back = {530, 480, MeasureText("Voltar ao menu!", 20), 20};
     Rectangle next = {centralizar_X("Proxima pergunta!", 20), 450, MeasureText("Proxima pergunta!", 20), 20};
+    Rectangle container_Enum = {50, 80, 690, 60};
 
     for(int i = 0; i < tam;){
         BeginDrawing();
         ClearBackground(WHITE);
 
-        DrawText(TextFormat("Pergunta %d", i+1), centralizar_X(TextFormat("Pergunta %d", i+1), 20), 200, 20, BLACK);
-        DrawText(TextFormat("Enunciado: %s", pergunta[i].enunciado), centralizar_X(TextFormat("Enunciado: %s", pergunta[i].enunciado), 20), 220, 20, BLACK);
-        DrawText(TextFormat("Alternativas"), centralizar_X(TextFormat("Alternativas"), 20), 240, 20, BLACK);
-        DrawText(TextFormat("[A] %s", pergunta[i].alt1), centralizar_X(TextFormat("[A] %s", pergunta[i].alt1), 20), 260, 20, BLACK);
-        DrawText(TextFormat("[B] %s", pergunta[i].alt2), centralizar_X(TextFormat("[B] %s", pergunta[i].alt2), 20), 280, 20, BLACK);
-        DrawText(TextFormat("[C] %s", pergunta[i].alt3), centralizar_X(TextFormat("[C] %s", pergunta[i].alt3), 20), 300, 20, BLACK);
-        DrawText(TextFormat("[D] %s", pergunta[i].alt4), centralizar_X(TextFormat("[D] %s", pergunta[i].alt4), 20), 320, 20, BLACK);
-        DrawText(TextFormat("Alternativa correta: %c", pergunta[i].resposta), centralizar_X(TextFormat("Alternativa correta: %c", pergunta[i].resposta), 20), 340, 20, BLACK);
-        DrawText(TextFormat("Nível de dificuldade: %d", pergunta[i].nivelDif), centralizar_X(TextFormat("Nível de dificuldade: %d", pergunta[i].nivelDif), 20), 360, 20, BLACK);
-        DrawText(TextFormat("Dica: %s", pergunta[i].dica), centralizar_X(TextFormat("Dica: %s", pergunta[i].dica), 20), 380, 20, BLACK);
-        DrawText(TextFormat("Valor: %d", pergunta[i].valor), centralizar_X(TextFormat("Valor: %d", pergunta[i].valor), 20), 400, 20, BLACK);
+        DrawText(TextFormat("Pergunta %d", i+1), centralizar_X(TextFormat("Pergunta %d", i+1), 20), 50, 20, BLACK);
+        quebrar_linha(pergunta[i].enunciado, container_Enum, 20, BLACK);
+        DrawText(TextFormat("Alternativas"), centralizar_X(TextFormat("Alternativas"), 20), 160, 20, BLACK);
+        DrawText(TextFormat("[A] %s", pergunta[i].alt1), centralizar_X(TextFormat("[A] %s", pergunta[i].alt1), 20), 180, 20, BLACK);
+        DrawText(TextFormat("[B] %s", pergunta[i].alt2), centralizar_X(TextFormat("[B] %s", pergunta[i].alt2), 20), 200, 20, BLACK);
+        DrawText(TextFormat("[C] %s", pergunta[i].alt3), centralizar_X(TextFormat("[C] %s", pergunta[i].alt3), 20), 220, 20, BLACK);
+        DrawText(TextFormat("[D] %s", pergunta[i].alt4), centralizar_X(TextFormat("[D] %s", pergunta[i].alt4), 20), 240, 20, BLACK);
+        DrawText(TextFormat("Alternativa correta: %c", pergunta[i].resposta), centralizar_X(TextFormat("Alternativa correta: %c", pergunta[i].resposta), 20), 280, 20, BLACK);
+        DrawText(TextFormat("Nível de dificuldade: %d", pergunta[i].nivelDif), centralizar_X(TextFormat("Nível de dificuldade: %d", pergunta[i].nivelDif), 20), 300, 20, BLACK);
+        DrawText(TextFormat("Dica: %s", pergunta[i].dica), centralizar_X(TextFormat("Dica: %s", pergunta[i].dica), 20), 320, 20, BLACK);
+        DrawText(TextFormat("Valor: %d", pergunta[i].valor), centralizar_X(TextFormat("Valor: %d", pergunta[i].valor), 20), 340, 20, BLACK);
 
         //Botão para avançar apara proxima pergunta
         if(i + 1 < tam){
