@@ -8,7 +8,8 @@
 int contar_linhas(const char *nome_arquivo){
     FILE *fp = fopen(nome_arquivo, "r");
     if(fp == NULL){
-        return 0;
+        perror("Erro ao abrir arquivo");
+        exit(1);
     }
 
     int count = 0;
@@ -238,11 +239,11 @@ void inserir(Pergunta **pergunta, int *tam){
     //Reposta
     strcpy(label, "Digite qual é a alternativa correta (A)(B)(C)(D):");
     if(ler_string(label, buffer, 200) == 1){
-        free((*pergunta)[i].dica);
         for(int k = 0; k < 4; k++){
             free(*alternativas[k]);
         }
         free((*pergunta)[i].enunciado);
+        free((*pergunta)[i].dica);
         *tam -= 1;
         return;
     }
@@ -252,9 +253,9 @@ void inserir(Pergunta **pergunta, int *tam){
     //Dificuldade
     strcpy(label, "Digite qual o nível de dificuldade da pergunta:");
     if(ler_string(label, buffer, 200) == 1){
-        free((*pergunta)[i].dica);
         for(int k=0; k<4; k++) free(*alternativas[k]);
         free((*pergunta)[i].enunciado);
+        free((*pergunta)[i].dica);
         *tam -= 1;
         return;
     }
@@ -264,9 +265,9 @@ void inserir(Pergunta **pergunta, int *tam){
     //Valor
     strcpy(label, "Digite qual o valor da pergunta:");
     if(ler_string(label, buffer, 200) == 1){
-        free((*pergunta)[i].dica);
         for(int k=0; k<4; k++) free(*alternativas[k]);
         free((*pergunta)[i].enunciado);
+        free((*pergunta)[i].dica);
         *tam -= 1;
         return;
     }
@@ -804,6 +805,7 @@ void jogar(Pergunta *pergunta, int total){
             if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)){
                 UnloadSound(fail_sound);
                 UnloadSound(continue_sound);
+                UnloadSound(mute_sound);
                 return;
             }
         }
@@ -974,22 +976,24 @@ int ler_string(char *label, char *input, int posY){
     return 1;
 }
 
-void quebrar_linha(const char *enunciado, Rectangle container, int fontSize, Color color){
-    int lineHeight = fontSize + 5;
-    float posY = container.y + 5;
+void quebrar_linha(const char *text, Rectangle container, int fontSize, Color color){
+    int lineHeight = fontSize + 5; //Alutra entre linhas 
+    float posY = container.y + 5;  //Inicio da escrita em relação a posição Y do container
 
-    const char *ptr = enunciado;
+    const char *ptr = text;
 
     while (*ptr != '\0'){
         char line[1024];
         int lineLength = 0;
         int lineWidth = 0;
 
+        //Monta a linha palavra por palavra, até chegar a largura maxima.
         while (*ptr != '\0' && *ptr != '\n'){
             const char *wordStart = ptr;
-
             char word[256];
             int wordLength = 0;
+
+            //Copia uma palavra
             while (*ptr != '\0' && *ptr != ' ' && *ptr != '\n'){
                 word[wordLength++] = *ptr;
                 ptr++;
@@ -998,16 +1002,18 @@ void quebrar_linha(const char *enunciado, Rectangle container, int fontSize, Col
 
             int wordSize = MeasureText(word, fontSize);
 
+            //Se a palavra não couber, da um break para desenhar a linha atual
             if ((lineWidth + wordSize) > container.width){
                 ptr = wordStart;
                 break;
             }
 
+            // Adiciona a palavra na linha
             memcpy(&line[lineLength], word, wordLength);
             lineLength += wordLength;
-
             lineWidth += wordSize;
 
+            // Se tiver espaço apos a palavra, adiciona o espaço.
             if (*ptr == ' '){
                 line[lineLength++] = ' ';
                 lineWidth += MeasureText(" ", fontSize);
@@ -1021,12 +1027,14 @@ void quebrar_linha(const char *enunciado, Rectangle container, int fontSize, Col
             ptr++;
         }
 
+        //Centraliza horizontalmente dentro do container
         int posX = container.x + (container.width - lineWidth) / 2;
 
         DrawText(line, posX, posY, fontSize, color);
 
         posY += lineHeight;
 
+        //Para se passar da altura do container.
         if((posY + lineHeight) > (container.y + container.height)){
             break;
         }

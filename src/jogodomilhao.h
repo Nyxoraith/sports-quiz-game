@@ -60,10 +60,12 @@ int centralizar_X(const char *name_button, int fontSize);
 void tutorial();
 
 //Exibe a tela de encerramento do jogo após ganhar ou perder.
-void jogo_encerrado(int pressed, int valorSeguro, int valorGanho);
+void jogo_encerrado(int respostaSelecionada, int valorSeguro, int valorGanho);
 
-//Le as strings digitadas e retorna para alocar memoria e copiar. 
+//Le as strings digitadas e retorna para status para verificação de alocação de memória, 0 para OK, 1 para Cancelado. 
 int ler_string(char *label, char *input, int posY);
 
+//Exibe o texto centralizado dentro de um container, quebrando linhas automaticamente conforme a largura do container
 void quebrar_linha(const char *text, Rectangle container, int fontSize, Color color);
+
 #endif
