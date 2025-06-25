@@ -74,7 +74,7 @@ void aloca_copia(char **destino, const char *origem) {
 
 void menu(Pergunta **perguntas, int *tam) {
     const char *nameButtons[] = {"Jogar", "Adicionar pergunta", "Listar perguntas", "Pesquisar perguntas", "Alterar perguntas", "Excluir perguntas", "Sair sem salvar", "Sair e salvar"};
-    Texture2D logo_show = LoadTexture("resources/show.png");
+    Texture2D logo_show = LoadTexture("resources/images/show.png");
     Rectangle play[8]; 
 
     for(int i = 0; i < 8; i++){
@@ -619,12 +619,12 @@ void jogar(Pergunta *pergunta, int total){
     Rectangle container_Enum = {50, 50, 700, 60};
     Rectangle bt_audio = {15, 15, 32, 32};
 
-    Texture2D mute = LoadTexture("resources/mute.png");
-    Texture2D unmute = LoadTexture("resources/unmute.png");
+    Texture2D mute = LoadTexture("resources/images/mute.png");
+    Texture2D unmute = LoadTexture("resources/images/unmute.png");
 
-    Sound continue_sound = LoadSound("resources/continue.mp3");
-    Sound fail_sound = LoadSound("resources/fail.mp3");
-    Sound mute_sound = LoadSound("resources/mute_sound.mp3");
+    Sound continue_sound = LoadSound("resources/sounds/continue.mp3");
+    Sound fail_sound = LoadSound("resources/sounds/fail.mp3");
+    Sound mute_sound = LoadSound("resources/sounds/mute_sound.mp3");
     
     SetMasterVolume(1);
     while(!WindowShouldClose()){
@@ -838,7 +838,7 @@ void tutorial(){
         "Para usar uma dica, clique no botão 'Receber Dica'."
     };
     int tempoEsperando = GetTime();
-    Sound intro = LoadSound("resources/intro.mp3");
+    Sound intro = LoadSound("resources/sounds/intro.mp3");
     while(!WindowShouldClose()){
         BeginDrawing();
         ClearBackground(WHITE);
@@ -880,7 +880,7 @@ void tutorial(){
 
 void jogo_encerrado(int respostaSelecionada, int valorSeguro, int valorGanho){
     char buffer[256];
-    Sound win_sound = LoadSound("resources/win.mp3");
+    Sound win_sound = LoadSound("resources/sounds/win.mp3");
     int play = 1;
     while(!WindowShouldClose()){
         BeginDrawing();
