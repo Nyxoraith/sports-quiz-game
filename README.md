@@ -8,23 +8,23 @@ Com uma interface simples e envolvente, o jogo desafia os participantes com ques
 
 ---
 
-## ✏️ Pré Requisitos.
+## 📦 Pré-requisitos
 * [Raylib](https://www.raylib.com/) - Biblioteca para gráficos e áudio
 * GCC >= 14.2.0
 * `Make` - Para utilizar o Makefile
 
 ---
 
-## ⚙️ Como compilar.
-Para compilar o projeto, use o comando: 
+## ⚙️ Compilação
+Com o Makefile, basta rodar:
 ```bash
 make
 ```
->Isso vai compilar todos os arquivos necessários e gerar o executável.
+>Isso compilará o projeto e gerará o executável na raiz do diretório.
 
 ---
 
-## 💻 Como executar.
+## 🚀 Execução
 
 ### Usando o Makefile:
 
@@ -32,15 +32,17 @@ make
 make run
 ```
 
-### Manualmente, após compilar:
+### Manualmente:
 
 * 🪟 **Windows**: `./game.exe`
 * 🐧 **Linux**: `./game`
 
->O executável será gerado como *game.exe* no Windows ou *game* no Linux.
+>O nome do executável gerado será *game.exe* no Windows e *game* no Linux.
+
+---
 
 ## 📄 Documentação adicional
 
-Preparamos um slide explicativo do projeto que, apesar de não ser utilizado na apresentação oficial, está disponível para consulta:
+Você também pode consultar o slide de apresentação do projeto:
 
-* 👉 [Visualizar slide (PDF)](docs/apresentacao.pdf)
+* 👉 [Visualizar apresentação (PDF)](docs/apresentacao.pdf)
